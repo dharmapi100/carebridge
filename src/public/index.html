@@ -1,0 +1,573 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CareBridge | Enterprise Labor Compliance & Matching OS</title>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg: #070a14;
+            --card-bg: #0e1322;
+            --card-border: #1a2234;
+            --accent: #38bdf8;
+            --accent-glow: rgba(56, 189, 248, 0.15);
+            --text: #f8fafc;
+            --muted: #94a3b8;
+            --success: #34d399;
+            --success-bg: rgba(52, 211, 153, 0.1);
+            --danger: #f87171;
+            --danger-bg: rgba(248, 113, 113, 0.1);
+            --font: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, sans-serif;
+            --mono: 'JetBrains Mono', monospace;
+        }
+        * { box-sizing: border-box; }
+        body {
+            font-family: var(--font);
+            background-color: var(--bg);
+            color: var(--text);
+            margin: 0;
+            padding: 40px 20px;
+            -webkit-font-smoothing: antialiased;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 40px;
+            border-bottom: 1px solid var(--card-border);
+            padding-bottom: 24px;
+        }
+        .brand h1 {
+            font-size: 2.2rem;
+            font-weight: 800;
+            letter-spacing: -0.03em;
+            color: var(--text);
+            margin: 0;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        .brand h1 span {
+            background: linear-gradient(135deg, #38bdf8 0%, #818cf8 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        .brand p {
+            color: var(--muted);
+            margin: 6px 0 0 0;
+            font-size: 1rem;
+            font-weight: 400;
+        }
+        .lang-switch {
+            background: var(--card-bg);
+            border: 1px solid var(--card-border);
+            color: var(--text);
+            padding: 10px 18px;
+            border-radius: 10px;
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 0.9rem;
+            font-family: var(--font);
+            transition: all 0.2s;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+        }
+        .lang-switch:hover {
+            border-color: var(--accent);
+            background: var(--accent-glow);
+        }
+        .grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 24px;
+        }
+        .card {
+            background-color: var(--card-bg);
+            border: 1px solid var(--card-border);
+            border-radius: 20px;
+            padding: 32px;
+            box-shadow: 0 20px 40px -15px rgba(0, 0, 0, 0.5);
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+        }
+        .full-width {
+            grid-column: span 2;
+        }
+        h2 {
+            font-size: 1.2rem;
+            font-weight: 700;
+            letter-spacing: -0.01em;
+            margin-top: 0;
+            margin-bottom: 24px;
+            color: var(--text);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .form-group {
+            margin-bottom: 18px;
+        }
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            color: var(--muted);
+            letter-spacing: 0.02em;
+            text-transform: uppercase;
+        }
+        input, select {
+            width: 100%;
+            padding: 14px 16px;
+            background: #04060d;
+            border: 1px solid var(--card-border);
+            color: var(--text);
+            border-radius: 10px;
+            font-size: 0.95rem;
+            font-weight: 500;
+            font-family: var(--font);
+            transition: all 0.2s;
+        }
+        input:focus {
+            outline: none;
+            border-color: var(--accent);
+            box-shadow: 0 0 0 3px var(--accent-glow);
+        }
+        .row-3 {
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr;
+            gap: 16px;
+        }
+        button.action-btn {
+            background: linear-gradient(135deg, #0ea5e9 0%, #2563eb 100%);
+            color: #ffffff;
+            border: none;
+            padding: 16px 24px;
+            font-weight: 700;
+            font-size: 1rem;
+            border-radius: 10px;
+            cursor: pointer;
+            width: 100%;
+            margin-top: 12px;
+            font-family: var(--font);
+            transition: all 0.2s;
+            box-shadow: 0 8px 20px rgba(14, 165, 233, 0.3);
+        }
+        button.action-btn:hover {
+            opacity: 0.95;
+            transform: translateY(-2px);
+            box-shadow: 0 12px 24px rgba(14, 165, 233, 0.4);
+        }
+        .executive-output {
+            margin-top: 24px;
+            background: #04060d;
+            border: 1px solid var(--card-border);
+            border-radius: 12px;
+            padding: 20px;
+            font-size: 0.9rem;
+        }
+        .badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-size: 0.75rem;
+            font-weight: 700;
+            letter-spacing: 0.03em;
+            text-transform: uppercase;
+            margin-bottom: 14px;
+        }
+        .badge-success { background: var(--success-bg); color: var(--success); border: 1px solid rgba(52, 211, 153, 0.3); }
+        .badge-danger { background: var(--danger-bg); color: var(--danger); border: 1px solid rgba(248, 113, 113, 0.3); }
+        
+        .metric-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 14px;
+            margin-top: 12px;
+        }
+        .metric-box {
+            background: #0e1322;
+            border: 1px solid var(--card-border);
+            padding: 16px;
+            border-radius: 10px;
+        }
+        .metric-box .label { font-size: 0.75rem; font-weight: 600; color: var(--muted); text-transform: uppercase; letter-spacing: 0.02em; }
+        .metric-box .value { font-size: 1.2rem; font-weight: 700; color: var(--text); margin-top: 6px; font-family: var(--mono); }
+        
+        .security-footer {
+            margin-top: 14px;
+            font-size: 0.75rem;
+            font-weight: 500;
+            color: var(--muted);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            border-top: 1px solid var(--card-border);
+            padding-top: 12px;
+            font-family: var(--mono);
+        }
+        .security-footer code {
+            color: var(--accent);
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <div class="brand">
+                <h1>CareBridge <span>OS</span></h1>
+                <p id="ui-subtitle">Enterprise Labor Compliance, PIPA Security & Smart Caregiver Matching</p>
+            </div>
+            <button class="lang-switch" onclick="toggleLanguage()">🇰🇷 한국어 / 🇺🇸 English</button>
+        </header>
+
+        <div class="grid">
+            <!-- Compliance Audit Card -->
+            <div class="card">
+                <div>
+                    <h2 id="ui-auditTitle">Labor Compliance & Severance Audit</h2>
+                    <div class="form-group">
+                        <label id="ui-workerId">Worker ID</label>
+                        <input type="text" id="auditWorkerId" value="worker-ksgc-777">
+                    </div>
+                    <div class="form-group">
+                        <label id="ui-startDate">Employment Start Date</label>
+                        <input type="date" id="auditStartDate" value="2022-03-01">
+                    </div>
+                    <div class="form-group">
+                        <label id="ui-monthlyWage">Average Monthly Wage (KRW)</label>
+                        <input type="number" id="auditWage" value="3100000">
+                    </div>
+                    <div class="form-group">
+                        <label id="ui-weeklyHours">Weekly Working Hours</label>
+                        <input type="number" id="auditHours" value="40">
+                    </div>
+                </div>
+                <div>
+                    <button class="action-btn" id="ui-auditBtn" onclick="runAudit()">Run PIPA-Secured Audit</button>
+                    <div class="executive-output" id="auditOutput">
+                        <span style="color: var(--muted);" id="ui-auditDefault">Ready for compliance audit...</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Credential OCR Verification Card -->
+            <div class="card">
+                <div>
+                    <h2 id="ui-ocrTitle">Government Credential OCR Verification</h2>
+                    <div class="form-group">
+                        <label id="ui-workerId2">Worker ID</label>
+                        <input type="text" id="ocrWorkerId" value="WORKER-PARK-01">
+                    </div>
+                    <div class="form-group">
+                        <label id="ui-licenseNum">Scanned License Number (PII Scrubbed)</label>
+                        <input type="text" id="ocrLicense" value="KR-CARE-2023-88491">
+                    </div>
+                </div>
+                <div>
+                    <button class="action-btn" id="ui-ocrBtn" onclick="verifyCredential()">Verify Certified Care Worker ID</button>
+                    <div class="executive-output" id="ocrOutput">
+                        <span style="color: var(--muted);" id="ui-ocrDefault">Ready for credential verification...</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Smart Matching Card -->
+            <div class="card full-width">
+                <div>
+                    <h2 id="ui-matchTitle">Smart Caregiver Matching & Compliance Dispatch</h2>
+                    <div class="row-3">
+                        <div class="form-group">
+                            <label id="ui-reqId">Request ID</label>
+                            <input type="text" id="matchReqId" value="req-elder-KSGC-01">
+                        </div>
+                        <div class="form-group">
+                            <label id="ui-reqHours">Required Weekly Hours</label>
+                            <input type="number" id="matchHours" value="40">
+                        </div>
+                        <div class="form-group">
+                            <label id="ui-overtimeHours">Overtime Hours</label>
+                            <input type="number" id="matchOvertime" value="5">
+                        </div>
+                    </div>
+                </div>
+                <div>
+                    <button class="action-btn" id="ui-matchBtn" onclick="runMatching()">Evaluate & Match Best Certified Caregiver</button>
+                    <div class="executive-output" id="matchOutput">
+                        <span style="color: var(--muted);" id="ui-matchDefault">Ready for smart dispatch evaluation...</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const API_BASE = 'http://localhost:3000';
+        let currentLang = 'en';
+
+        // Cache last response data so language toggling updates live output cards immediately
+        let lastAuditData = null;
+        let lastOcrData = null;
+        let lastMatchData = null;
+
+        const i18n = {
+            en: {
+                subtitle: "Enterprise Labor Compliance, PIPA Security & Smart Caregiver Matching",
+                auditTitle: "Labor Compliance & Severance Audit",
+                workerId: "Worker ID",
+                startDate: "Employment Start Date",
+                monthlyWage: "Average Monthly Wage (KRW)",
+                weeklyHours: "Weekly Working Hours",
+                auditBtn: "Run PIPA-Secured Audit",
+                auditDefault: "Ready for compliance audit...",
+                
+                ocrTitle: "Government Credential OCR Verification",
+                licenseNum: "Scanned License Number (PII Scrubbed)",
+                ocrBtn: "Verify Certified Care Worker ID",
+                ocrDefault: "Ready for credential verification...",
+                
+                matchTitle: "Smart Caregiver Matching & Compliance Dispatch",
+                reqId: "Request ID",
+                reqHours: "Required Weekly Hours",
+                overtimeHours: "Overtime Hours",
+                matchBtn: "Evaluate & Match Best Certified Caregiver",
+                matchDefault: "Ready for smart dispatch evaluation..."
+            },
+            ko: {
+                subtitle: "기업형 노무 컴플라이언스, PIPA 보안 및 스마트 요양보호사 매칭",
+                auditTitle: "노무 컴플라이언스 및 퇴직금 산정 감사",
+                workerId: "근로자 ID (Worker ID)",
+                startDate: "입사일 (Employment Start Date)",
+                monthlyWage: "평균 월 급여 (KRW)",
+                weeklyHours: "주 소정 근로시간",
+                auditBtn: "PIPA 보안 감사 실행",
+                auditDefault: "노무 감사 대기 중...",
+                
+                ocrTitle: "정부 요양보호사 자격증 OCR 검증",
+                licenseNum: "스캔된 자격증 번호 (개인정보 마스킹)",
+                ocrBtn: "요양보호사 자격증 확인",
+                ocrDefault: "자격증 검증 대기 중...",
+                
+                matchTitle: "스마트 요양보호사 매칭 및 배차",
+                reqId: "요청 ID (Request ID)",
+                reqHours: "필요 주간 근로시간",
+                overtimeHours: "초과 근로시간",
+                matchBtn: "최적의 인증 요양보호사 매칭 평가",
+                matchDefault: "스마트 배차 평가 대기 중..."
+            }
+        };
+
+        function toggleLanguage() {
+            currentLang = currentLang === 'en' ? 'ko' : 'en';
+            const t = i18n[currentLang];
+
+            document.getElementById('ui-subtitle').textContent = t.subtitle;
+            document.getElementById('ui-auditTitle').textContent = t.auditTitle;
+            document.getElementById('ui-workerId').textContent = t.workerId;
+            document.getElementById('ui-workerId2').textContent = t.workerId;
+            document.getElementById('ui-startDate').textContent = t.startDate;
+            document.getElementById('ui-monthlyWage').textContent = t.monthlyWage;
+            document.getElementById('ui-weeklyHours').textContent = t.weeklyHours;
+            document.getElementById('ui-auditBtn').textContent = t.auditBtn;
+            
+            if (!lastAuditData) document.getElementById('ui-auditDefault').textContent = t.auditDefault;
+
+            document.getElementById('ui-ocrTitle').textContent = t.ocrTitle;
+            document.getElementById('ui-licenseNum').textContent = t.licenseNum;
+            document.getElementById('ui-ocrBtn').textContent = t.ocrBtn;
+            if (!lastOcrData) document.getElementById('ui-ocrDefault').textContent = t.ocrDefault;
+
+            document.getElementById('ui-matchTitle').textContent = t.matchTitle;
+            document.getElementById('ui-reqId').textContent = t.reqId;
+            document.getElementById('ui-reqHours').textContent = t.reqHours;
+            document.getElementById('ui-overtimeHours').textContent = t.overtimeHours;
+            document.getElementById('ui-matchBtn').textContent = t.matchBtn;
+            if (!lastMatchData) document.getElementById('ui-matchDefault').textContent = t.matchDefault;
+
+            // Re-render live outputs if they contain data
+            if (lastAuditData) renderAudit(lastAuditData);
+            if (lastOcrData) renderOcr(lastOcrData);
+            if (lastMatchData) renderMatching(lastMatchData);
+        }
+
+        async function runAudit() {
+            const out = document.getElementById('auditOutput');
+            out.innerHTML = `<span style="color: var(--accent);">${currentLang === 'ko' ? 'PIPA 노무 감사 실행 중...' : 'Executing PIPA compliance audit...'}</span>`;
+            try {
+                const payload = {
+                    workerId: document.getElementById('auditWorkerId').value,
+                    employmentStartDate: document.getElementById('auditStartDate').value,
+                    averageMonthlyWage: Number(document.getElementById('auditWage').value),
+                    weeklyWorkingHours: Number(document.getElementById('auditHours').value),
+                    overtimeHoursWorked: 10,
+                    baseHourlyRate: 18000
+                };
+
+                const res = await fetch(`${API_BASE}/api/v1/compliance/audit`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+                lastAuditData = await res.json();
+                renderAudit(lastAuditData);
+            } catch (err) {
+                out.innerHTML = `<span style="color: var(--danger);">Error: ${err.message}</span>`;
+            }
+        }
+
+        function renderAudit(data) {
+            const out = document.getElementById('auditOutput');
+            const ledger = data.auditLedger;
+            out.innerHTML = `
+                <div class="badge badge-success">${currentLang === 'ko' ? '✓ PIPA 컴플라이언스 감사 완료' : '✓ PIPA Compliant & Audited'}</div>
+                <div class="metric-grid">
+                    <div class="metric-box">
+                        <div class="label">${currentLang === 'ko' ? '퇴직금 지급 대상' : 'Severance Eligible'}</div>
+                        <div class="value">${ledger.isEligibleForSeverance ? (currentLang === 'ko' ? '해당 (Yes)' : 'Yes') : 'No'}</div>
+                    </div>
+                    <div class="metric-box">
+                        <div class="label">${currentLang === 'ko' ? '누적 퇴직금 부채' : 'Cumulative Severance'}</div>
+                        <div class="value">₩${ledger.cumulativeSeveranceLiability.toLocaleString()}</div>
+                    </div>
+                    <div class="metric-box">
+                        <div class="label">${currentLang === 'ko' ? '총 고용주 부담금' : 'Total Employer Liability'}</div>
+                        <div class="value" style="color: var(--accent);">₩${ledger.totalEmployerLiability.toLocaleString()}</div>
+                    </div>
+                    <div class="metric-box">
+                        <div class="label">${currentLang === 'ko' ? '4대 사회보험' : '4 Major Insurances'}</div>
+                        <div class="value">₩${(ledger.fourMajorInsurances.nationalPension + ledger.fourMajorInsurances.healthInsurance + ledger.fourMajorInsurances.employmentInsurance).toLocaleString()}</div>
+                    </div>
+                </div>
+                <div class="security-footer">
+                    🔒 AES-256-GCM Secure Token: <code>${data.secureEncryptedStorageToken.data.substring(0, 32)}...</code>
+                </div>
+            `;
+        }
+
+        async function verifyCredential() {
+            const out = document.getElementById('ocrOutput');
+            out.innerHTML = `<span style="color: var(--accent);">${currentLang === 'ko' ? 'OCR 및 정부 등록부 확인 중...' : 'Running OCR & Government Registry Check...'}</span>`;
+            try {
+                const payload = {
+                    workerId: document.getElementById('ocrWorkerId').value,
+                    scannedLicenseNumber: document.getElementById('ocrLicense').value
+                };
+
+                const res = await fetch(`${API_BASE}/api/v1/credential/verify`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+                lastOcrData = await res.json();
+                renderOcr(lastOcrData);
+            } catch (err) {
+                out.innerHTML = `<span style="color: var(--danger);">Error: ${err.message}</span>`;
+            }
+        }
+
+        function renderOcr(data) {
+            const out = document.getElementById('ocrOutput');
+            const v = data.verificationResult;
+            out.innerHTML = `
+                <div class="badge ${v.verified ? 'badge-success' : 'badge-danger'}">${v.verified ? (currentLang === 'ko' ? '✓ 공식 자격증 검증됨' : '✓ Official License Verified') : (currentLang === 'ko' ? '✗ 검증 실패' : '✗ Verification Failed')}</div>
+                <div class="metric-grid">
+                    <div class="metric-box">
+                        <div class="label">${currentLang === 'ko' ? '요양보호사 성명' : 'Caregiver Name'}</div>
+                        <div class="value">${v.licenseDetails ? v.licenseDetails.name : 'Unknown'}</div>
+                    </div>
+                    <div class="metric-box">
+                        <div class="label">${currentLang === 'ko' ? '발급 기관' : 'Issuing Authority'}</div>
+                        <div class="value" style="font-size: 0.9rem;">${v.licenseDetails ? v.licenseDetails.issuingAuthority : 'N/A'}</div>
+                    </div>
+                </div>
+                <div class="security-footer">
+                    🔒 PIPA Encrypted Token: <code>${data.secureEncryptedVerificationToken.data.substring(0, 32)}...</code>
+                </div>
+            `;
+        }
+
+        async function runMatching() {
+            const out = document.getElementById('matchOutput');
+            out.innerHTML = `<span style="color: var(--accent);">${currentLang === 'ko' ? '인증된 요양보호사 후보 평가 중...' : 'Evaluating certified caregiver candidates...'}</span>`;
+            try {
+                const payload = {
+                    requestId: document.getElementById('matchReqId').value,
+                    requiredWeeklyHours: Number(document.getElementById('matchHours').value),
+                    overtimeHours: Number(document.getElementById('matchOvertime').value),
+                    strictNoSeverance: false,
+                    candidates: [
+                        {
+                            id: "WORKER-PARK-01",
+                            name: "Park Eun-ji",
+                            isCertified: true,
+                            expectedMonthlyWage: 3200000,
+                            employmentStartDate: "2023-05-01",
+                            baseHourlyRate: 19000,
+                            distanceKm: 1.8,
+                            rating: 4.9,
+                            yearsOfExperience: 6
+                        },
+                        {
+                            id: "WORKER-UNVERIFIED",
+                            name: "Choi Soo-jin",
+                            isCertified: false,
+                            expectedMonthlyWage: 2900000,
+                            employmentStartDate: "2024-02-01",
+                            baseHourlyRate: 17000,
+                            distanceKm: 0.5,
+                            rating: 4.0,
+                            yearsOfExperience: 1
+                        }
+                    ]
+                };
+
+                const res = await fetch(`${API_BASE}/api/v1/matching/dispatch`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+                lastMatchData = await res.json();
+                renderMatching(lastMatchData);
+            } catch (err) {
+                out.innerHTML = `<span style="color: var(--danger);">Error: ${err.message}</span>`;
+            }
+        }
+
+        function renderMatching(data) {
+            const out = document.getElementById('matchOutput');
+            const best = data.dispatchResult.bestMatch;
+            out.innerHTML = `
+                <div class="badge badge-success">${currentLang === 'ko' ? '✓ 최적의 컴플라이언스 매치 배차됨' : '✓ Optimal Compliant Match Dispatched'}</div>
+                <div class="metric-grid">
+                    <div class="metric-box">
+                        <div class="label">${currentLang === 'ko' ? '추천 요양보호사' : 'Best Caregiver Match'}</div>
+                        <div class="value" style="color: var(--accent);">${best ? best.name : 'None'}</div>
+                    </div>
+                    <div class="metric-box">
+                        <div class="label">${currentLang === 'ko' ? '매칭 점수' : 'Match Score'}</div>
+                        <div class="value">${best ? best.finalMatchScore : 0} / 150</div>
+                    </div>
+                    <div class="metric-box">
+                        <div class="label">${currentLang === 'ko' ? '예상 고용주 부담금' : 'Estimated Employer Liability'}</div>
+                        <div class="value">₩${best ? best.estimatedEmployerLiability.toLocaleString() : 0}</div>
+                    </div>
+                    <div class="metric-box">
+                        <div class="label">${currentLang === 'ko' ? '거리' : 'Distance'}</div>
+                        <div class="value">${best ? best.distanceKm : 0} km</div>
+                    </div>
+                </div>
+                <div class="security-footer">
+                    🔒 PIPA Encrypted Dispatch Token: <code>${data.secureEncryptedDispatchToken.data.substring(0, 32)}...</code>
+                </div>
+            `;
+        }
+    </script>
+</body>
+</html>

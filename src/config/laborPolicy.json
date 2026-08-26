@@ -1,0 +1,13 @@
+{
+  "lastChecked": "2026-08-25T20:51:34.285Z",
+  "jurisdiction": "South Korea Ministry of Employment and Labor (MOEL)",
+  "activeRegulations": {
+    "severanceThresholdWeeklyHours": 15,
+    "overtimeMultiplier": 1.5,
+    "nationalPensionRate": 0.045,
+    "healthInsuranceRate": 0.03545,
+    "employmentInsuranceRate": 0.0115,
+    "minimumHourlyWage2026": 10030
+  },
+  "sourceFeed": "https://www.moel.go.kr (Simulated Autonomous Feed)"
+}

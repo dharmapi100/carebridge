@@ -1,0 +1,16 @@
+{
+  "WORKER-PARK-01": {
+    "name": "Park Eun-ji",
+    "licenseNumber": "KR-CARE-2023-88491",
+    "isCertified": true,
+    "expiryDate": "2028-12-31",
+    "issuingAuthority": "Seoul Metropolitan Government"
+  },
+  "WORKER-KIM-02": {
+    "name": "Kim Ji-young",
+    "licenseNumber": "KR-CARE-2022-11029",
+    "isCertified": true,
+    "expiryDate": "2027-05-15",
+    "issuingAuthority": "Gyeonggi Provincial Government"
+  }
+}
