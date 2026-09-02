@@ -1,0 +1,28 @@
+# macOS / Apple
+.DS_Store
+.AppleDouble
+.LSOverride
+
+# Hermes agent workspace
+.hermes/
+.zsh_*
+
+# Node modules
+node_modules/
+
+# Caches
+.cache/
+.DS_Store
+
+# Heroku
+tmp/
+log/
+
+# IDEs
+.idea/
+*.swp
+*.swo
+*~
+
+# EasyOCR cache
+.EasyOCR/
