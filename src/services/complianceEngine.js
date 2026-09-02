@@ -7,8 +7,6 @@ export class KoreanComplianceEngine {
   }
 
   calculateSeverance(startDate, monthlyWage, weeklyHours) {
-    if (weeklyHours < this.SEVERANCE_THRESHOLD_HOURLS) { // wait, fix typo below
-    }
     if (weeklyHours < this.SEVERANCE_THRESHOLD_HOURS) {
       return { eligible: false, liability: 0 };
     }

@@ -1,0 +1,14 @@
+version: '3.8'
+
+services:
+  carebridge-api:
+    build: .
+    ports:
+      - "3000:3000"
+    environment:
+      - NODE_ENV=production
+      - PORT=3000
+    volumes:
+      - audit_logs:/app/logs
+volumes:
+  audit_logs:

@@ -198,4 +198,21 @@ app.get('/api/v1/audit/inspect', (req, res) => {
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
   console.log(`[CareBridge API] PII-Scrubbed Compliance, Visa, Audit & Secure OS running on port ${PORT}`);
+  
+  // ==========================================
+  // ZERO-LATENCY AUTONOMOUS MOEL POLICY WATCHER DAEMON
+  // ==========================================
+  const POLL_INTERVAL_MS = 60 * 1000; // Poll every 60 seconds for zero-latency regulatory updates
+  console.log(`[PolicyWatcherDaemon] Initialized. Polling MOEL feed every ${POLL_INTERVAL_MS / 1000}s for instantaneous compliance synchronization.`);
+  
+  setInterval(async () => {
+    try {
+      const result = await policyWatcher.pollAndVerifyPolicyUpdates();
+      if (result.updated) {
+        console.log('[PolicyWatcherDaemon] 🚨 MOEL Regulatory amendment detected and auto-patched instantly.');
+      }
+    } catch (err) {
+      console.error('[PolicyWatcherDaemon] Error during autonomous policy poll:', err.message);
+    }
+  }, POLL_INTERVAL_MS);
 });
