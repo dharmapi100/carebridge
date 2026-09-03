@@ -1,0 +1,37 @@
+name: CareBridge CI/CD
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+
+    strategy:
+      matrix:
+        node-version: [18.x, 20.x]
+
+    steps:
+    - uses: actions/checkout@v3
+
+    - name: Use Node.js ${{ matrix.node-version }}
+      uses: actions/setup-node@v3
+      with:
+        node-version: ${{ matrix.node-version }}
+        cache: 'npm'
+
+    - name: Install dependencies
+      run: npm install
+
+    - name: Run Core Compliance Test Runner
+      run: node src/services/testRunner.js
+
+    - name: Run Unit Test Suites
+      run: |
+        node src/tests/test_audit.js
+        node src/tests/test_matching.js
+        node src/tests/test_sidecar.js
+        node src/tests/test_visa.js
