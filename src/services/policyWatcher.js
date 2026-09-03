@@ -239,4 +239,51 @@ export class KoreanPolicyWatcher {
       policy
     };
   }
+
+  /**
+   * Fetches and extracts the plain-text body of a single MOHW press release
+   * detail page, given its list_no. Used by the daemon to hand real article
+   * text to LLMExtractor -- board listing rows only have a title, not content.
+   */
+  async fetchMOHWPostBody(listNo) {
+    const detailUrl = `https://www.mohw.go.kr/board.es?mid=a10503010100&bid=0027&act=view&list_no=${listNo}`;
+
+    let html;
+    try {
+      const response = await fetch(detailUrl, {
+        headers: { 'User-Agent': 'Mozilla/5.0 (CareBridge PolicyWatcher/1.0)' }
+      });
+      if (!response.ok) {
+        throw new Error(`MOHW detail page responded with HTTP ${response.status}`);
+      }
+      html = await response.text();
+    } catch (err) {
+      return { success: false, error: err.message };
+    }
+
+    const startMarker = 'class="viewArea">';
+    const startIdx = html.indexOf(startMarker);
+    if (startIdx === -1) {
+      return { success: false, error: 'Could not locate viewArea content block in MOHW detail page (page structure may have changed).' };
+    }
+    const endIdx = html.indexOf('첨부파일', startIdx);
+    const rawSnippet = endIdx > -1 ? html.slice(startIdx, endIdx) : html.slice(startIdx, startIdx + 20000);
+
+    const bodyText = rawSnippet
+      .replace(/<[^>]+>/g, ' ')
+      .replace(/&nbsp;/g, ' ')
+      .replace(/&rsquo;|&lsquo;/g, "'")
+      .replace(/&rdquo;|&ldquo;/g, '"')
+      .replace(/&middot;/g, '·')
+      .replace(/&rarr;/g, '→')
+      .replace(/&amp;/g, '&')
+      .replace(/\s+/g, ' ')
+      .trim();
+
+    if (bodyText.length === 0) {
+      return { success: false, error: 'Extracted body text was empty.' };
+    }
+
+    return { success: true, bodyText, url: detailUrl };
+  }
 }
