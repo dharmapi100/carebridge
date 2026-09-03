@@ -26,3 +26,9 @@ log/
 
 # EasyOCR cache
 .EasyOCR/
+
+# Local encryption keys / secrets (never commit these)
+secure.key
+*.key
+test_secure.key
+*.pem
