@@ -96,6 +96,13 @@ export class KoreanPolicyWatcher {
           targetGoLiveDate: '2027-H1',
           hospitalMinBeds: 100,
           directEmploymentRequired: true,
+          // MOHW has not published a partial-compliance percentage for direct
+          // employment -- 1.0 (100%) is a conservative default, NOT a confirmed
+          // government figure. Update this the moment MOHW publishes a real
+          // number (watch pollMOHWCaregivingFeed()'s detectedUpdates for the
+          // announcement, then read it and set this manually -- the watcher
+          // flags the announcement, it does not extract or apply the number).
+          directEmploymentMinRatio: 1.0,
           patientCopayRatioMin: 0.20,
           patientCopayRatioMax: 0.30,
           nearPovertyTierCopayRatio: 0.20,

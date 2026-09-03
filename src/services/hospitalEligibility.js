@@ -69,7 +69,7 @@ export class HospitalEligibilityEngine {
 
     const hardGates = [
       this._evaluateBedCount(hospitalData, regs),
-      this._evaluateDirectEmployment(hospitalData),
+      this._evaluateDirectEmployment(hospitalData, regs),
       this._evaluateAccreditation(hospitalData, regs)
     ];
 
@@ -114,25 +114,28 @@ export class HospitalEligibilityEngine {
     };
   }
 
-  _evaluateDirectEmployment(hospitalData) {
+  _evaluateDirectEmployment(hospitalData, regs) {
     const totalCaregivers = hospitalData.totalCaregivers ?? 0;
     const directCaregivers = hospitalData.directEmploymentCaregivers ?? 0;
     const ratio = totalCaregivers > 0 ? directCaregivers / totalCaregivers : 0;
+    const requiredRatio = regs.directEmploymentMinRatio;
     // MOHW states direct employment as a required "principle" without a published
-    // partial-compliance percentage. We treat this conservatively: full compliance
-    // (100% of caregivers directly employed) is required to pass this gate, since
-    // no partial threshold has been confirmed and industry data shows only ~10% of
+    // partial-compliance percentage. directEmploymentMinRatio defaults to 1.0
+    // (100%) in caregivingPolicy.json as a conservative placeholder -- NOT a
+    // confirmed government figure -- since industry data shows only ~10% of
     // caregivers are currently directly employed nationally (Yonsei Univ. survey,
-    // 227 hospitals, cited in the 2026-07-28 Yonhap report).
-    const pass = totalCaregivers > 0 && ratio >= 1.0;
+    // 227 hospitals, cited in the 2026-07-28 Yonhap report). Update the config
+    // value directly once MOHW publishes a real number; this method reads
+    // whatever is in caregivingPolicy.json rather than hardcoding it.
+    const pass = totalCaregivers > 0 && ratio >= requiredRatio;
     return {
       criterion: 'directEmploymentRequired',
-      required: 'All caregivers directly employed by the hospital (no published partial-compliance threshold)',
+      required: `>=${(requiredRatio * 100).toFixed(0)}% of caregivers directly employed (default placeholder pending MOHW's published threshold)`,
       actual: `${directCaregivers}/${totalCaregivers} directly employed (${(ratio * 100).toFixed(1)}%)`,
       pass,
       reason: pass
-        ? 'All caregivers are directly employed by the hospital, satisfying MOHW\'s direct-employment principle.'
-        : 'MOHW requires caregivers be directly employed by the hospital rather than sourced through brokers/agencies; this hospital does not yet fully satisfy that principle.'
+        ? `Direct-employment ratio (${(ratio * 100).toFixed(1)}%) meets the configured minimum of ${(requiredRatio * 100).toFixed(0)}%.`
+        : `MOHW requires caregivers be directly employed by the hospital rather than sourced through brokers/agencies; this hospital's ratio (${(ratio * 100).toFixed(1)}%) is below the configured minimum of ${(requiredRatio * 100).toFixed(0)}%.`
     };
   }
 

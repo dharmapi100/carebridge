@@ -136,6 +136,8 @@ assert.strictEqual(result6.trackedFactors.nursingStaffGrade.value, null);
 console.log('✅ Case 6 passed: missing tracked-factor data defaults to null without throwing.');
 
 // ── Case 7: audit logging — every evaluation must be recorded ──────────────
+// NOTE: this checks the count of evaluations run so far (6); Case 9 runs one
+// more evaluation afterward and is verified independently.
 const auditInspection = auditMonitor.scanForViolations();
 assert.strictEqual(auditInspection.totalEntriesScanned, 6, 'all 6 evaluations above must have been audit-logged');
 console.log('✅ Case 7 passed: all 6 eligibility evaluations were written to the audit log.');
@@ -144,6 +146,25 @@ console.log('✅ Case 7 passed: all 6 eligibility evaluations were written to th
 assert.throws(() => engine.evaluateHospital(null), /requires a hospitalData object/);
 assert.throws(() => engine.evaluateHospital(undefined), /requires a hospitalData object/);
 console.log('✅ Case 8 passed: malformed input throws explicitly instead of silently failing.');
+
+// ── Case 9: direct-employment threshold is READ FROM CONFIG, not hardcoded ─
+// Proves the fix: lowering directEmploymentMinRatio in caregivingPolicy.json
+// must change the pass/fail outcome without touching hospitalEligibility.js.
+policyWatcher.updateCaregivingPolicyThresholds({ directEmploymentMinRatio: 0.5 });
+const partiallyStaffedHospital = {
+  hospitalId: 'HOSP-007',
+  hospitalName: 'Config-Driven Threshold Test Hospital',
+  bedCount: 130,
+  totalCaregivers: 20,
+  directEmploymentCaregivers: 12,  // 60% -- would FAIL at the 1.0 default, should PASS at 0.5
+  medicalAccreditationStatus: 'accredited',
+  region: 'metro'
+};
+const result9 = engine.evaluateHospital(partiallyStaffedHospital);
+assert.strictEqual(result9.status, 'eligible', 'lowering directEmploymentMinRatio to 0.5 in config must let a 60% hospital pass without any code change');
+const directGate9 = result9.hardGates.find(g => g.criterion === 'directEmploymentRequired');
+assert.ok(directGate9.required.includes('50%'), 'the gate\'s "required" field must reflect the updated config value, not a hardcoded 100%');
+console.log('✅ Case 9 passed: direct-employment threshold is genuinely config-driven (updating caregivingPolicy.json changes outcomes with zero code edits).');
 
 // Cleanup
 for (const f of [testLaborPolicyFile, testCaregivingPolicyFile, testAuditLogFile]) {
