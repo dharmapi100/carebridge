@@ -1,0 +1,62 @@
+<!-- Synthetic fixture: same markup shape as MOHW's real 보도자료 board (captured
+     structure, verified against a live fetch on 2026-09-03), with fabricated rows
+     that deliberately include caregiving-keyword matches. Used to deterministically
+     unit-test _parseMOHWBoardListing() and _detectCaregivingDrift() without
+     depending on MOHW actually publishing a matching post at test-run time. -->
+<div class="board_list flexible">
+	<table class="tstyle_list">
+		<caption>보도자료 목록 - 번호, 제목, 담당부서, 등록일, 조회수를 나타낸 표입니다.</caption>
+		<colgroup>
+			<col class="w8">
+			<col>
+			<col class="w15">
+			<col class="w15">
+			<col class="w8">
+		</colgroup>
+		<thead>
+			<tr>
+				<th scope="col">번호</th>
+				<th scope="col">제목</th>
+				<th scope="col">담당부서</th>
+				<th scope="col">등록일</th>
+				<th scope="col">조회수</th>
+			</tr>
+		</thead>
+		<tbody>
+
+			<tr>
+				<td class="m_hidden" data-label="번호">99999</td>
+				<td class="txt_left" data-label="제목">
+<a href="/board.es?mid=a10503010100&amp;bid=0027&amp;act=view&amp;list_no=1499999&amp;tag=&amp;nPage=1" class="txt_title"> <i class="xi-new"></i><span class="sr_only">새글</span> 요양병원 간병비 급여화 확정안 발표</a></td>
+
+				<td data-label="담당부서">간호정책과</td>
+				<td data-label="등록일">2026-09-04</td>
+				
+				<td class="m_hidden" data-label="조회수">1</td>
+			</tr>
+
+			<tr>
+				<td class="m_hidden" data-label="번호">99998</td>
+				<td class="txt_left" data-label="제목">
+<a href="/board.es?mid=a10503010100&amp;bid=0027&amp;act=view&amp;list_no=1499998&amp;tag=&amp;nPage=1" class="txt_title"> <i class="xi-new"></i><span class="sr_only">새글</span> 2027학년도 지역의사 선발 공고</a></td>
+
+				<td data-label="담당부서">지역의료인력양성과</td>
+				<td data-label="등록일">2026-09-04</td>
+				
+				<td class="m_hidden" data-label="조회수">2</td>
+			</tr>
+
+			<tr>
+				<td class="m_hidden" data-label="번호">99997</td>
+				<td class="txt_left" data-label="제목">
+<a href="/board.es?mid=a10503010100&amp;bid=0027&amp;act=view&amp;list_no=1499997&amp;tag=&amp;nPage=1" class="txt_title"> <i class="xi-new"></i><span class="sr_only">새글</span> 간호간병통합서비스 시범사업 지역 확대</a></td>
+
+				<td data-label="담당부서">간호정책과</td>
+				<td data-label="등록일">2026-09-03</td>
+				
+				<td class="m_hidden" data-label="조회수">3</td>
+			</tr>
+
+		</tbody>
+	</table>
+</div>
