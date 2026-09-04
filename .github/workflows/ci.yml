@@ -31,7 +31,8 @@ jobs:
 
     - name: Run Unit Test Suites
       run: |
-        node src/tests/test_audit.js
-        node src/tests/test_matching.js
-        node src/tests/test_sidecar.js
-        node src/tests/test_visa.js
+        set -e
+        for f in src/tests/test_*.js; do
+          echo "=== Running $f ==="
+          node "$f"
+        done
