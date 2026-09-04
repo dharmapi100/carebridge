@@ -82,21 +82,22 @@
         }
         .grid {
             display: grid;
-            grid-template-columns: 1fr 1fr;
+            grid-template-columns: repeat(3, 1fr);
+            align-items: stretch;
             gap: 24px;
         }
         .card {
             background-color: var(--card-bg);
             border: 1px solid var(--card-border);
             border-radius: 20px;
-            padding: 32px;
+            padding: 28px;
             box-shadow: 0 20px 40px -15px rgba(0, 0, 0, 0.5);
             display: flex;
             flex-direction: column;
             justify-content: space-between;
         }
         .full-width {
-            grid-column: span 2;
+            grid-column: span 3;
         }
         h2 {
             font-size: 1.2rem;
@@ -170,6 +171,8 @@
             border-radius: 12px;
             padding: 20px;
             font-size: 0.9rem;
+            min-height: 60px;
+            transition: min-height 0.25s ease;
         }
         .badge {
             display: inline-flex;
@@ -280,10 +283,10 @@
             </div>
 
             <!-- Smart Matching Card -->
-            <div class="card full-width">
+            <div class="card">
                 <div>
                     <h2 id="ui-matchTitle">Smart Caregiver Matching & Compliance Dispatch</h2>
-                    <div class="row-3">
+                    <div class="row-3" style="grid-template-columns: 1fr;">
                         <div class="form-group">
                             <label id="ui-reqId">Request ID</label>
                             <input type="text" id="matchReqId" value="req-elder-KSGC-01">
@@ -305,6 +308,46 @@
                     </div>
                 </div>
             </div>
+
+            <!-- Hi-Korea Visa Validation Card -->
+            <div class="card">
+                <div>
+                    <h2 id="ui-visaTitle">Hi-Korea Visa & Immigration Status Validator</h2>
+                    <div class="form-group">
+                        <label id="ui-arc">Alien Registration Number (ARC)</label>
+                        <input type="text" id="visaArc" value="890123-2199182">
+                    </div>
+                    <div class="form-group">
+                        <label id="ui-visaType">Visa Subtype</label>
+                        <input type="text" id="visaType" value="E-9">
+                    </div>
+                </div>
+                <div>
+                    <button class="action-btn" id="ui-visaBtn" onclick="verifyVisa()">Verify Hi-Korea Visa Status</button>
+                    <div class="executive-output" id="visaOutput">
+                        <span style="color: var(--muted);" id="ui-visaDefault">Ready for visa immigration check...</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- MOEL Policy Watcher & Inspector Portal Card -->
+            <div class="card">
+                <div>
+                    <h2 id="ui-watcherTitle">MOEL Autonomous Policy Watcher & Audit Portal</h2>
+                    <div class="form-group">
+                        <label id="ui-watcherSub">Ministry of Employment & Labor (MOEL) Live Feed</label>
+                        <div style="font-size: 0.9rem; color: var(--muted); margin-top: 8px; line-height: 1.5;">
+                            Continuously monitors Korean labor law updates, minimum wage changes, and severance threshold decrees.
+                        </div>
+                    </div>
+                </div>
+                <div>
+                    <button class="action-btn" id="ui-watcherBtn" onclick="inspectMoelPolicy()">Inspect MOEL Regulations & Audit Log</button>
+                    <div class="executive-output" id="watcherOutput">
+                        <span style="color: var(--muted);" id="ui-watcherDefault">Ready for MOEL regulatory inspection...</span>
+                    </div>
+                </div>
+            </div>
         </div>
     </div>
 
@@ -316,6 +359,8 @@
         let lastAuditData = null;
         let lastOcrData = null;
         let lastMatchData = null;
+        let lastVisaData = null;
+        let lastWatcherData = null;
 
         const i18n = {
             en: {
@@ -338,7 +383,18 @@
                 reqHours: "Required Weekly Hours",
                 overtimeHours: "Overtime Hours",
                 matchBtn: "Evaluate & Match Best Certified Caregiver",
-                matchDefault: "Ready for smart dispatch evaluation..."
+                matchDefault: "Ready for smart dispatch evaluation...",
+
+                visaTitle: "Hi-Korea Visa & Immigration Status Validator",
+                arc: "Alien Registration Number (ARC)",
+                visaType: "Visa Subtype",
+                visaBtn: "Verify Hi-Korea Visa Status",
+                visaDefault: "Ready for visa immigration check...",
+
+                watcherTitle: "MOEL Autonomous Policy Watcher & Audit Portal",
+                watcherSub: "Ministry of Employment & Labor (MOEL) Live Feed",
+                watcherBtn: "Inspect MOEL Regulations & Audit Log",
+                watcherDefault: "Ready for MOEL regulatory inspection..."
             },
             ko: {
                 subtitle: "기업형 노무 컴플라이언스, PIPA 보안 및 스마트 요양보호사 매칭",
@@ -360,7 +416,18 @@
                 reqHours: "필요 주간 근로시간",
                 overtimeHours: "초과 근로시간",
                 matchBtn: "최적의 인증 요양보호사 매칭 평가",
-                matchDefault: "스마트 배차 평가 대기 중..."
+                matchDefault: "스마트 배차 평가 대기 중...",
+
+                visaTitle: "하이코리아 비자 및 체류 자격 검증기",
+                arc: "외국인등록번호 (ARC)",
+                visaType: "비자 종류 (Visa Subtype)",
+                visaBtn: "하이코리아 비자 상태 확인",
+                visaDefault: "비자 출입국 검증 대기 중...",
+
+                watcherTitle: "고용노동부(MOEL) 자율 정책 감시 및 감사 포털",
+                watcherSub: "고용노동부(MOEL) 실시간 규정 피드",
+                watcherBtn: "MOEL 규정 및 감사 로그 검사",
+                watcherDefault: "고용노동부 규정 감사 대기 중..."
             }
         };
 
@@ -391,10 +458,23 @@
             document.getElementById('ui-matchBtn').textContent = t.matchBtn;
             if (!lastMatchData) document.getElementById('ui-matchDefault').textContent = t.matchDefault;
 
+            document.getElementById('ui-visaTitle').textContent = t.visaTitle;
+            document.getElementById('ui-arc').textContent = t.arc;
+            document.getElementById('ui-visaType').textContent = t.visaType;
+            document.getElementById('ui-visaBtn').textContent = t.visaBtn;
+            if (!lastVisaData) document.getElementById('ui-visaDefault').textContent = t.visaDefault;
+
+            document.getElementById('ui-watcherTitle').textContent = t.watcherTitle;
+            document.getElementById('ui-watcherSub').textContent = t.watcherSub;
+            document.getElementById('ui-watcherBtn').textContent = t.watcherBtn;
+            if (!lastWatcherData) document.getElementById('ui-watcherDefault').textContent = t.watcherDefault;
+
             // Re-render live outputs if they contain data
             if (lastAuditData) renderAudit(lastAuditData);
             if (lastOcrData) renderOcr(lastOcrData);
             if (lastMatchData) renderMatching(lastMatchData);
+            if (lastVisaData) renderVisa(lastVisaData);
+            if (lastWatcherData) renderWatcher(lastWatcherData);
         }
 
         async function runAudit() {
@@ -446,7 +526,7 @@
                     </div>
                 </div>
                 <div class="security-footer">
-                    🔒 AES-256-GCM Secure Token: <code>${data.secureEncryptedStorageToken.data.substring(0, 32)}...</code>
+                    🔒 ${currentLang === 'ko' ? 'AES-256-GCM 보안 토큰' : 'AES-256-GCM Secure Token'}: <code>${data.secureEncryptedStorageToken.data.substring(0, 32)}...</code>
                 </div>
             `;
         }
@@ -488,7 +568,7 @@
                     </div>
                 </div>
                 <div class="security-footer">
-                    🔒 PIPA Encrypted Token: <code>${data.secureEncryptedVerificationToken.data.substring(0, 32)}...</code>
+                    🔒 ${currentLang === 'ko' ? 'PIPA 암호화 토큰' : 'PIPA Encrypted Token'}: <code>${data.secureEncryptedVerificationToken.data.substring(0, 32)}...</code>
                 </div>
             `;
         }
@@ -564,9 +644,88 @@
                     </div>
                 </div>
                 <div class="security-footer">
-                    🔒 PIPA Encrypted Dispatch Token: <code>${data.secureEncryptedDispatchToken.data.substring(0, 32)}...</code>
+                    🔒 ${currentLang === 'ko' ? 'PIPA 암호화 배차 토큰' : 'PIPA Encrypted Dispatch Token'}: <code>${data.secureEncryptedDispatchToken.data.substring(0, 32)}...</code>
                 </div>
             `;
+        }
+
+        async function verifyVisa() {
+            const out = document.getElementById('visaOutput');
+            out.innerHTML = `<span style="color: var(--accent);">${currentLang === 'ko' ? '하이코리아 비자 검증 중...' : 'Verifying Hi-Korea visa status...'}</span>`;
+            try {
+                const payload = {
+                    alienRegistrationNumber: document.getElementById('visaArc').value,
+                    visaType: document.getElementById('visaType').value,
+                    nationality: 'China',
+                    employmentStatus: 'Active'
+                };
+                const res = await fetch(`${API_BASE}/api/v1/visa/verify`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+                const data = await res.json();
+                lastVisaData = { data, payload };
+                renderVisa(lastVisaData);
+            } catch (err) {
+                out.innerHTML = `<span style="color: var(--danger);">Error: ${err.message}</span>`;
+            }
+        }
+
+        function renderVisa(cached) {
+            const out = document.getElementById('visaOutput');
+            const { data, payload } = cached;
+            const v = data.hiKoreaVerification;
+            out.innerHTML = `
+                    <div class="badge ${v.eligible ? 'badge-success' : 'badge-danger'}">${v.eligible ? (currentLang === 'ko' ? '✓ Hi-Korea 비자 적격' : '✓ Hi-Korea Visa Eligible') : (currentLang === 'ko' ? '✗ 비자 부적격/미비' : '✗ Visa Ineligible / Missing')}</div>
+                    <div class="metric-grid">
+                        <div class="metric-box">
+                            <div class="label">${currentLang === 'ko' ? '비자 종류' : 'Visa Type'}</div>
+                            <div class="value">${payload.visaType}</div>
+                        </div>
+                        <div class="metric-box">
+                            <div class="label">${currentLang === 'ko' ? '판정 사유' : 'Evaluation Reason'}</div>
+                            <div class="value" style="font-size: 0.85rem;">${v.reason || v.status || (currentLang === 'ko' ? '통과' : 'Passed')}</div>
+                        </div>
+                    </div>
+                    <div class="security-footer">
+                        🔒 ${currentLang === 'ko' ? '암호화된 비자 토큰' : 'Encrypted Visa Token'}: <code>${data.secureEncryptedVisaToken.data.substring(0, 32)}...</code>
+                    </div>
+                `;
+        }
+
+        async function inspectMoelPolicy() {
+            const out = document.getElementById('watcherOutput');
+            out.innerHTML = `<span style="color: var(--accent);">${currentLang === 'ko' ? 'MOEL 규정 검사 중...' : 'Inspecting MOEL regulations...'}</span>`;
+            try {
+                const res = await fetch(`${API_BASE}/api/v1/audit/inspect`);
+                const data = await res.json();
+                lastWatcherData = data;
+                renderWatcher(lastWatcherData);
+            } catch (err) {
+                out.innerHTML = `<span style="color: var(--danger);">Error: ${err.message}</span>`;
+            }
+        }
+
+        function renderWatcher(data) {
+            const out = document.getElementById('watcherOutput');
+            const rep = data.inspectionReport;
+            out.innerHTML = `
+                    <div class="badge badge-success">${currentLang === 'ko' ? '✓ MOEL 규정 감사 활성화됨' : '✓ MOEL Regulatory Inspection Active'}</div>
+                    <div class="metric-grid">
+                        <div class="metric-box">
+                            <div class="label">${currentLang === 'ko' ? '총 감사 건수' : 'Total Audits Logged'}</div>
+                            <div class="value">${rep.totalEntriesScanned ?? rep.totalAuditEventsLogged ?? 0}</div>
+                        </div>
+                        <div class="metric-box">
+                            <div class="label">${currentLang === 'ko' ? '위반 건수' : 'Violations Detected'}</div>
+                            <div class="value" style="color: var(--success);">${rep.violationsDetected}</div>
+                        </div>
+                    </div>
+                    <div class="security-footer">
+                        🔒 ${currentLang === 'ko' ? 'MOEL 암호화된 감사관 토큰' : 'MOEL Encrypted Inspector Token'}: <code>${data.secureEncryptedInspectionToken.data.substring(0, 32)}...</code>
+                    </div>
+                `;
         }
     </script>
 </body>

@@ -30,5 +30,7 @@ log/
 # Local encryption keys / secrets (never commit these)
 secure.key
 *.key
+secure.keychain.json
+*.keychain.json
 test_secure.key
 *.pem

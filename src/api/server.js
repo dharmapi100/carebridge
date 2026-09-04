@@ -20,9 +20,13 @@ const app = express();
 app.use(express.json());
 app.use(cors());
 
-// Serve static frontend dashboard explicitly with absolute resolution
+// Serve static frontend dashboard, resolved relative to this file so it
+// always serves THIS repo's frontend regardless of where the process is
+// launched from. (Previously hardcoded to /Users/paulbasic/src/public/ --
+// the old, deprecated source tree -- meaning every local run silently
+// served stale frontend code instead of what's actually in this repo.)
 app.get('/', (req, res) => {
-  const indexPath = path.resolve('/Users/paulbasic/src/public/index.html');
+  const indexPath = path.join(__dirname, '..', 'public', 'index.html');
   res.sendFile(indexPath, (err) => {
     if (err) {
       res.status(500).send('Error loading frontend: ' + err.message);
