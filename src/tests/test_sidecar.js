@@ -99,6 +99,16 @@ assert.throws(
 );
 console.log('✅ Test 5 passed: unknown keyId fails with a clear error instead of a confusing crash.');
 
+// ── 6. Blind index: deterministic, non-reversible, collision-resistant ────
+const arcNumber = 'ARC-1234567890';
+const indexA = sidecar.blindIndex(arcNumber);
+const indexB = sidecar.blindIndex(arcNumber);
+assert.strictEqual(indexA, indexB, 'the same raw identifier must always produce the same blind index');
+assert.notStrictEqual(indexA, sidecar.blindIndex('ARC-0000000000'), 'different identifiers must not collide');
+assert.ok(!indexA.includes(arcNumber), 'the blind index must not contain or leak the raw identifier');
+assert.strictEqual(indexA.length, 64, 'blind index must be a fixed-length SHA-256 hex digest');
+console.log('✅ Test 6 passed: blind index is deterministic, collision-resistant, and non-reversible.');
+
 // Cleanup
 for (const f of [testKeychainFile, testLegacyKeyFile, legacyKeychainFile, legacyKeyFile]) {
   if (fs.existsSync(f)) fs.unlinkSync(f);

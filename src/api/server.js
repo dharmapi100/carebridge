@@ -12,6 +12,7 @@ import { VisaValidator } from '../services/visaValidator.js';
 import { AuditMonitor } from '../services/auditMonitor.js';
 import { PIIScrubber } from '../services/piiScrubber.js';
 import { CaregiverLedger } from '../services/caregiverLedger.js';
+import { PredictiveRiskEngine } from '../services/predictiveRiskEngine.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -42,6 +43,7 @@ const credentialIngestor = new CredentialIngestor();
 const visaValidator = new VisaValidator();
 const auditMonitor = new AuditMonitor();
 const caregiverLedger = new CaregiverLedger({ auditMonitor });
+const predictiveRiskEngine = new PredictiveRiskEngine(engine);
 
 // Health check endpoint with Autonomous Policy Watcher status
 app.get('/health', async (req, res) => {
@@ -179,6 +181,29 @@ app.post('/api/v1/matching/dispatch', async (req, res) => {
       secureEncryptedDispatchToken: encryptedDispatchToken
     });
 
+  } catch (error) {
+    return res.status(500).json({ success: false, error: error.message });
+  }
+});
+
+// Predictive Risk Scan Endpoint: flags visa-expiry and severance-threshold
+// risk across every registered caregiver, sorted highest-risk first.
+app.get('/api/v1/risk/scan', (req, res) => {
+  try {
+    const riskReport = predictiveRiskEngine.scanLedger(caregiverLedger);
+    const encryptedReport = sidecar.encryptPayload(riskReport);
+
+    auditMonitor.logAuditEvent('PREDICTIVE_RISK_SCAN', 'SYSTEM', {
+      totalEvaluated: riskReport.totalEvaluated,
+      skipped: riskReport.skipped
+    });
+
+    return res.status(200).json({
+      success: true,
+      timestamp: new Date().toISOString(),
+      riskReport,
+      secureEncryptedRiskToken: encryptedReport
+    });
   } catch (error) {
     return res.status(500).json({ success: false, error: error.message });
   }

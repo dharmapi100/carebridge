@@ -72,6 +72,15 @@ export class CaregiverLedger {
   }
 
   /**
+   * Returns every registered caregiver record (e.g. for risk scanning or
+   * reporting across the full ledger, not just one hospital).
+   */
+  getAllCaregivers() {
+    const registry = this._read();
+    return Object.values(registry.caregivers);
+  }
+
+  /**
    * Evaluates if a registered caregiver meets current regulatory compliance requirements.
    */
   evaluateCaregiverCompliance(workerId) {

@@ -34,3 +34,7 @@ secure.keychain.json
 *.keychain.json
 test_secure.key
 *.pem
+
+# Runtime-generated local data (not source, regenerated on first run)
+src/config/caregiverLedger.json
+src/config/caregivingPolicy.json

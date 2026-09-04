@@ -135,6 +135,17 @@ export class SecureSidecar {
     };
   }
 
+  /**
+   * Deterministic, non-reversible fingerprint of a raw identifier (e.g. ARC
+   * or passport number) for duplicate/fraud detection across records --
+   * without ever storing or comparing the raw value itself. Same input
+   * always yields the same index; the index cannot be decrypted back to
+   * the original value (SHA-256 is one-way).
+   */
+  blindIndex(rawIdentifier) {
+    return createHash('sha256').update(String(rawIdentifier)).digest('hex');
+  }
+
   decryptPayload(encryptedPayload) {
     // Backward compatibility: payloads encrypted before this keyId tagging
     // was introduced won't have a keyId field. Fall back to the active key
