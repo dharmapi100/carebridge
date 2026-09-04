@@ -11,6 +11,7 @@ import { CredentialIngestor } from '../services/credentialIngestor.js';
 import { VisaValidator } from '../services/visaValidator.js';
 import { AuditMonitor } from '../services/auditMonitor.js';
 import { PIIScrubber } from '../services/piiScrubber.js';
+import { CaregiverLedger } from '../services/caregiverLedger.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -36,6 +37,7 @@ const matchingEngine = new CareBridgeMatchingEngine();
 const credentialIngestor = new CredentialIngestor();
 const visaValidator = new VisaValidator();
 const auditMonitor = new AuditMonitor();
+const caregiverLedger = new CaregiverLedger({ auditMonitor });
 
 // Health check endpoint with Autonomous Policy Watcher status
 app.get('/health', async (req, res) => {
@@ -156,9 +158,10 @@ app.post('/api/v1/matching/dispatch', async (req, res) => {
       return res.status(400).json({ error: 'Missing required request parameters: requestId, candidates (array)' });
     }
 
-    const matchResult = matchingEngine.matchCaregiver(
+    const matchResult = await matchingEngine.matchCaregiver(
       { requestId, requiredWeeklyHours, overtimeHours, strictNoSeverance },
-      candidates
+      candidates,
+      caregiverLedger
     );
 
     const encryptedDispatchToken = sidecar.encryptPayload(matchResult);

@@ -10,21 +10,33 @@ export class CareBridgeMatchingEngine {
    * Evaluates and ranks available certified caregivers for a specific elder care request
    * based on compliance liability, proximity, and certification status.
    */
-  matchCaregiver(request, availableCaregivers) {
-    const scoredMatches = availableCaregivers.map(caregiver => {
+  /**
+   * Evaluates and ranks available caregivers for a specific elder care request
+   * based on REAL compliance verification (via CaregiverLedger), liability, and
+   * proximity/experience scoring. Requires a ledger instance so certification is
+   * actually checked against the government registry, not just asserted by the
+   * caller via a raw isCertified flag (that was the pre-ledger vulnerability).
+   */
+  async matchCaregiver(request, availableCaregivers, ledger) {
+    if (!ledger) {
+      throw new Error('matchCaregiver requires a CaregiverLedger instance to verify candidates.');
+    }
+
+    const scoredMatches = await Promise.all(availableCaregivers.map(async caregiver => {
       let score = 100;
       let disqualificationReason = null;
 
-      // 1. Verify certification status (Must be a certified 요양보호사)
-      if (!caregiver.isCertified) {
+      // 1. Verify credential + visa via Ledger (real government-registry-backed check)
+      const compliance = ledger.evaluateCaregiverCompliance(caregiver.id);
+      if (!compliance.compliant) {
         score = 0;
-        disqualificationReason = 'Unverified or missing Certified Care Worker (요양보호사) license.';
+        disqualificationReason = compliance.reason || 'Regulatory compliance check failed.';
       }
 
       // 2. Run compliance audit on proposed working hours / wages
       const proposedHours = request.requiredWeeklyHours || 40.0;
       const proposedWage = caregiver.expectedMonthlyWage || 3000000;
-      
+
       const audit = this.complianceEngine.auditContract({
         workerId: caregiver.id,
         employmentStartDate: new Date(caregiver.employmentStartDate || '2023-01-01'),
@@ -41,7 +53,7 @@ export class CareBridgeMatchingEngine {
 
       // 3. Proximity scoring (simulated distance in km)
       const distanceKm = caregiver.distanceKm || 5.0;
-      score -= (distanceKm * 3); // Deduct 3 points per km away
+      score -= (distanceKm * 3);
 
       // 4. Experience & Rating bonus
       score += (caregiver.rating || 4.5) * 5;
@@ -51,15 +63,14 @@ export class CareBridgeMatchingEngine {
         caregiverId: caregiver.id,
         name: caregiver.name,
         finalMatchScore: Math.max(Number(score.toFixed(1)), 0),
-        isEligible: score > 50 && caregiver.isCertified,
+        isEligible: score > 50 && compliance.compliant,
         disqualificationReason,
         estimatedEmployerLiability: audit.totalEmployerLiability,
         severanceEligible: audit.isEligibleForSeverance,
         distanceKm
       };
-    });
+    }));
 
-    // Sort by highest match score
     scoredMatches.sort((a, b) => b.finalMatchScore - a.finalMatchScore);
 
     return {
