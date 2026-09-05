@@ -23,8 +23,29 @@
 // be updated to promote them into hard gates — see caregivingPolicy.json.
 import { KoreanPolicyWatcher } from './policyWatcher.js';
 import { AuditMonitor } from './auditMonitor.js';
+import { StaffingComplianceMonitor } from './staffingComplianceMonitor.js';
 
 const CONDITIONAL_GRACE_PERIOD_YEARS = 1;
+
+// Fixability classification for gap-report entries. Modeled after how Korean
+// regulators (KOIHA nursing-hospital certification; 장기요양기관 지정갱신제) already
+// bundle facility/structural criteria and staffing/operational criteria into a
+// single certification/designation decision rather than issuing them as two
+// separate approvals -- see docs/KSGC_MASTER_CONTEXT.md for the research trail.
+// 'structural' = capital/facilities decisions with longer timelines (bed count,
+// room reconfiguration). 'operational' = staffing/employment decisions a hospital
+// can act on in weeks-to-months (direct-employment ratio, headcount, shift
+// rotation, RN-supervision linkage, accreditation renewal process).
+const GAP_FIXABILITY = {
+  hospitalMinBeds: 'structural',
+  directEmploymentRequired: 'operational',
+  medicalAccreditationRequired: 'operational',
+  roomConfiguration: 'structural',
+  shiftRotation: 'operational',
+  caregiverHeadcount: 'operational',
+  legacySoloShiftPattern: 'operational',
+  rnSupervisionLinkage: 'operational'
+};
 
 // Per Chosun Ilbo (2026-07-08): non-metro ("지방") nursing hospitals may receive
 // conditional designation if they commit to meeting deficient criteria within 1 year.
@@ -40,6 +61,10 @@ export class HospitalEligibilityEngine {
       options.caregivingPolicyFilePath
     );
     this.auditMonitor = options.auditMonitor || new AuditMonitor(options.auditLogPath);
+    this.staffingMonitor = options.staffingMonitor || new StaffingComplianceMonitor({
+      policyWatcher: this.policyWatcher,
+      auditMonitor: this.auditMonitor
+    });
   }
 
   /**
@@ -206,5 +231,95 @@ export class HospitalEligibilityEngine {
 
     // Metro hospitals failing bed-count/accreditation have no documented grace period.
     return { status: 'ineligible', conditionalExpiresAt: null };
+  }
+
+  /**
+   * Generates a single, consolidated gap report combining hospital-level
+   * eligibility gates AND ward-level staffing/shift compliance -- one
+   * designation decision, matching how KOIHA and 장기요양기관 지정갱신제 already
+   * bundle facility and staffing criteria into one certification outcome
+   * rather than issuing separate approvals.
+   *
+   * @param {Object} hospitalData same shape as evaluateHospital()
+   * @param {Array<Object>} wardStaffingDataList array of wardData objects,
+   *   same shape StaffingComplianceMonitor.evaluateWardStaffing() expects
+   * @returns {Object} consolidated gap report, also written to the audit log
+   */
+  generateGapReport(hospitalData, wardStaffingDataList = []) {
+    if (!hospitalData || typeof hospitalData !== 'object') {
+      throw new Error('generateGapReport requires a hospitalData object.');
+    }
+    if (!Array.isArray(wardStaffingDataList)) {
+      throw new Error('generateGapReport requires wardStaffingDataList to be an array.');
+    }
+
+    const facilityResult = this.evaluateHospital(hospitalData);
+    const wardResults = wardStaffingDataList.map(w => this.staffingMonitor.evaluateWardStaffing(w));
+
+    const gaps = [];
+
+    for (const gate of facilityResult.hardGates) {
+      if (!gate.pass) {
+        gaps.push({
+          domain: 'facilityAndEmployment',
+          scope: hospitalData.hospitalId ?? 'hospital',
+          criterion: gate.criterion,
+          currentValue: gate.actual,
+          requiredValue: gate.required,
+          fixability: GAP_FIXABILITY[gate.criterion] ?? 'unclassified',
+          recommendedAction: gate.reason
+        });
+      }
+    }
+
+    for (const wardResult of wardResults) {
+      for (const finding of wardResult.findings) {
+        gaps.push({
+          domain: 'staffingAndShiftCompliance',
+          scope: wardResult.wardId,
+          criterion: finding.criterion,
+          currentValue: finding.detail,
+          requiredValue: null,
+          fixability: GAP_FIXABILITY[finding.criterion] ?? 'unclassified',
+          recommendedAction: finding.detail
+        });
+      }
+    }
+
+    const staffingAllMeetStandard = wardResults.length === 0 ||
+      wardResults.every(w => w.meetsForthcomingStandard);
+
+    // Overall status takes the worst-case across both domains. Facility
+    // eligibility already encodes its own eligible/conditional/ineligible
+    // scale; staffing has no MOHW-published grace-period mechanism yet, so
+    // any staffing gap can only ever downgrade toward 'ineligible', never
+    // upgrade a facility-level 'conditional'/'ineligible' result.
+    let overallStatus = facilityResult.status;
+    if (!staffingAllMeetStandard && overallStatus === 'eligible') {
+      overallStatus = 'ineligible';
+    }
+
+    const report = {
+      hospitalId: hospitalData.hospitalId ?? null,
+      hospitalName: hospitalData.hospitalName ?? null,
+      generatedAt: new Date().toISOString(),
+      overallStatus,
+      domains: {
+        facilityAndEmployment: facilityResult,
+        staffingAndShiftCompliance: {
+          wardResults,
+          allWardsMeetStandard: staffingAllMeetStandard
+        }
+      },
+      gaps
+    };
+
+    this.auditMonitor.logAuditEvent(
+      'HOSPITAL_GAP_REPORT_GENERATED',
+      hospitalData.hospitalId ?? 'unknown-hospital',
+      { overallStatus: report.overallStatus, gapCount: gaps.length }
+    );
+
+    return report;
   }
 }
