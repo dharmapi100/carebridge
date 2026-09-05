@@ -10,6 +10,12 @@
     "patientCopayRatioMin": 0.20,
     "patientCopayRatioMax": 0.30,
     "nearPovertyTierCopayRatio": 0.20,
+    "longStayPenalty": {
+      "sixMonthThresholdDays": 183,
+      "sixMonthPenaltyRatio": 0.10,
+      "oneYearThresholdDays": 365,
+      "oneYearPenaltyRatio": 0.20
+    },
     "caregiverToPatientRatio": 4,
     "minShiftRotation": 2,
     "roomConfigMaxBeds": 4,

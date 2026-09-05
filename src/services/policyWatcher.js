@@ -106,6 +106,21 @@ export class KoreanPolicyWatcher {
           patientCopayRatioMin: 0.20,
           patientCopayRatioMax: 0.30,
           nearPovertyTierCopayRatio: 0.20,
+          // Long-stay penalty: per Seoul Economic Daily (서울경제, 2026-09-22),
+          // citing a named MOHW 보험급여과 bureau director on-record at the
+          // 간병비 급여화 public forum: patients admitted 6+ months face a +10
+          // percentage-point copay increase; 1+ year admissions face +20pp.
+          // This is a named-official public statement, same confidence tier as
+          // hospitalMinBeds/medicalAccreditationRequiredFrom above -- NOT yet a
+          // 건강보험정책심의위원회 (건정심) formal ruling. Update via the policy
+          // watcher's drift-detection review flow if 건정심 finalizes different
+          // figures.
+          longStayPenalty: {
+            sixMonthThresholdDays: 183,
+            sixMonthPenaltyRatio: 0.10,
+            oneYearThresholdDays: 365,
+            oneYearPenaltyRatio: 0.20
+          },
           caregiverToPatientRatio: 4,
           minShiftRotation: 2,
           roomConfigMaxBeds: 4,
@@ -131,10 +146,26 @@ export class KoreanPolicyWatcher {
    * Dynamically patches caregiving policy thresholds — mirrors updatePolicyThresholds()
    * for the MOEL track. This is the ONLY sanctioned way activeRegulations changes;
    * the autonomous poller never writes here directly (see pollMOHWCaregivingFeed).
+   *
+   * Supports dot-path keys (e.g. 'longStayPenalty.sixMonthPenaltyRatio') for nested
+   * regulation objects, alongside flat top-level keys -- both are shallow/O(1) per
+   * key, so this stays cheap even as nested regulation groups grow.
    */
   updateCaregivingPolicyThresholds(newThresholds) {
     const current = this.getCurrentCaregivingPolicy();
-    current.activeRegulations = { ...current.activeRegulations, ...newThresholds };
+
+    for (const [key, value] of Object.entries(newThresholds)) {
+      if (key.includes('.')) {
+        const [parentKey, childKey] = key.split('.');
+        if (!current.activeRegulations[parentKey] || typeof current.activeRegulations[parentKey] !== 'object') {
+          current.activeRegulations[parentKey] = {};
+        }
+        current.activeRegulations[parentKey][childKey] = value;
+      } else {
+        current.activeRegulations[key] = value;
+      }
+    }
+
     current.lastChecked = new Date().toISOString();
 
     fs.writeFileSync(this.caregivingPolicyFilePath, JSON.stringify(current, null, 2));
