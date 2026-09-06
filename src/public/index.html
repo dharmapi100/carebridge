@@ -309,10 +309,10 @@
                 </div>
             </div>
 
-            <!-- Hi-Korea Visa Validation Card -->
+            <!-- Caregiver Visa Category Check Card -->
             <div class="card">
                 <div>
-                    <h2 id="ui-visaTitle">Hi-Korea Visa & Immigration Status Validator</h2>
+                    <h2 id="ui-visaTitle">Caregiver Visa Category Eligibility Check</h2>
                     <div class="form-group">
                         <label id="ui-arc">Alien Registration Number (ARC)</label>
                         <input type="text" id="visaArc" value="890123-2199182">
@@ -323,9 +323,9 @@
                     </div>
                 </div>
                 <div>
-                    <button class="action-btn" id="ui-visaBtn" onclick="verifyVisa()">Verify Hi-Korea Visa Status</button>
+                    <button class="action-btn" id="ui-visaBtn" onclick="verifyVisa()">Check Visa Category Eligibility</button>
                     <div class="executive-output" id="visaOutput">
-                        <span style="color: var(--muted);" id="ui-visaDefault">Ready for visa immigration check...</span>
+                        <span style="color: var(--muted);" id="ui-visaDefault">Ready for visa category check...</span>
                     </div>
                 </div>
             </div>
@@ -385,11 +385,11 @@
                 matchBtn: "Evaluate & Match Best Certified Caregiver",
                 matchDefault: "Ready for smart dispatch evaluation...",
 
-                visaTitle: "Hi-Korea Visa & Immigration Status Validator",
+                visaTitle: "Caregiver Visa Category Eligibility Check",
                 arc: "Alien Registration Number (ARC)",
                 visaType: "Visa Subtype",
-                visaBtn: "Verify Hi-Korea Visa Status",
-                visaDefault: "Ready for visa immigration check...",
+                visaBtn: "Check Visa Category Eligibility",
+                visaDefault: "Ready for visa category check...",
 
                 watcherTitle: "MOEL Autonomous Policy Watcher & Audit Portal",
                 watcherSub: "Ministry of Employment & Labor (MOEL) Live Feed",
@@ -418,11 +418,11 @@
                 matchBtn: "최적의 인증 요양보호사 매칭 평가",
                 matchDefault: "스마트 배차 평가 대기 중...",
 
-                visaTitle: "하이코리아 비자 및 체류 자격 검증기",
+                visaTitle: "간병인 비자 종류 적격성 확인",
                 arc: "외국인등록번호 (ARC)",
                 visaType: "비자 종류 (Visa Subtype)",
-                visaBtn: "하이코리아 비자 상태 확인",
-                visaDefault: "비자 출입국 검증 대기 중...",
+                visaBtn: "비자 종류 적격성 확인",
+                visaDefault: "비자 종류 확인 대기 중...",
 
                 watcherTitle: "고용노동부(MOEL) 자율 정책 감시 및 감사 포털",
                 watcherSub: "고용노동부(MOEL) 실시간 규정 피드",
@@ -651,7 +651,7 @@
 
         async function verifyVisa() {
             const out = document.getElementById('visaOutput');
-            out.innerHTML = `<span style="color: var(--accent);">${currentLang === 'ko' ? '하이코리아 비자 검증 중...' : 'Verifying Hi-Korea visa status...'}</span>`;
+            out.innerHTML = `<span style="color: var(--accent);">${currentLang === 'ko' ? '비자 종류 확인 중...' : 'Checking visa category...'}</span>`;
             try {
                 const payload = {
                     alienRegistrationNumber: document.getElementById('visaArc').value,
@@ -675,9 +675,9 @@
         function renderVisa(cached) {
             const out = document.getElementById('visaOutput');
             const { data, payload } = cached;
-            const v = data.hiKoreaVerification;
+            const v = data.visaCategoryCheck;
             out.innerHTML = `
-                    <div class="badge ${v.eligible ? 'badge-success' : 'badge-danger'}">${v.eligible ? (currentLang === 'ko' ? '✓ Hi-Korea 비자 적격' : '✓ Hi-Korea Visa Eligible') : (currentLang === 'ko' ? '✗ 비자 부적격/미비' : '✗ Visa Ineligible / Missing')}</div>
+                    <div class="badge ${v.eligible ? 'badge-success' : 'badge-danger'}">${v.eligible ? (currentLang === 'ko' ? '✓ 승인된 비자 종류' : '✓ Approved Visa Category') : (currentLang === 'ko' ? '✗ 비자 종류 부적격/미비' : '✗ Visa Category Not Approved / Missing')}</div>
                     <div class="metric-grid">
                         <div class="metric-box">
                             <div class="label">${currentLang === 'ko' ? '비자 종류' : 'Visa Type'}</div>

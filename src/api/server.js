@@ -134,19 +134,21 @@ app.post('/api/v1/credential/verify', async (req, res) => {
   }
 });
 
-// Hi-Korea Visa & Immigration Verification Endpoint with PII Scrubbing
+// Caregiver Visa Category Eligibility Check (local allowlist only -- see
+// visaValidator.js header note: no Hi-Korea/government-system integration
+// exists). PII scrubbed before processing.
 app.post('/api/v1/visa/verify', async (req, res) => {
   try {
     const applicantData = PIIScrubber.scrubObject(req.body);
     const visaCheck = visaValidator.validateVisaStatus(applicantData);
     const encryptedVisaToken = sidecar.encryptPayload(visaCheck);
 
-    auditMonitor.logAuditEvent('HI_KOREA_VISA_CHECK', applicantData.alienRegistrationNumber || 'ANONYMOUS', visaCheck);
+    auditMonitor.logAuditEvent('CAREGIVER_VISA_CATEGORY_CHECK', applicantData.alienRegistrationNumber || 'ANONYMOUS', visaCheck);
 
     return res.status(200).json({
       success: true,
       timestamp: new Date().toISOString(),
-      hiKoreaVerification: visaCheck,
+      visaCategoryCheck: visaCheck,
       secureEncryptedVisaToken: encryptedVisaToken
     });
   } catch (error) {
