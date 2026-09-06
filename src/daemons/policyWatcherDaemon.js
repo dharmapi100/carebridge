@@ -43,8 +43,27 @@ export class PolicyWatcherDaemon {
       pollSuccess: false,
       newMatchesCount: 0,
       proposalsCreated: [],
-      errors: []
+      errors: [],
+      insurance: { pollSuccess: false, newMatchesCount: 0 }
     };
+
+    // Insurance-rate feeds: lightweight, read-only discovery only. Detected
+    // posts land in insurancePolicy.json's detectedUpdates for a human to
+    // read and manually update complianceEngine.js's rate constants -- no
+    // LLM-extraction/proposal round-trip here (unlike the caregiving track
+    // below), since these are terse numeric % announcements a human can
+    // confirm from the headline alone.
+    try {
+      const insuranceResult = await this.policyWatcher.pollInsuranceRateFeeds();
+      summary.insurance.pollSuccess = insuranceResult.success;
+      summary.insurance.newMatchesCount = insuranceResult.newMatchesCount;
+      if (insuranceResult.newMatchesCount > 0) {
+        console.log(`[PolicyWatcherDaemon] 💰 ${insuranceResult.newMatchesCount} insurance-rate announcement(s) flagged for human review.`);
+      }
+    } catch (err) {
+      summary.errors.push(`Insurance-rate poll threw unexpectedly: ${err.message}`);
+      console.error('[PolicyWatcherDaemon] ❌ Insurance-rate poll threw unexpectedly:', err);
+    }
 
     const pollResult = await this.policyWatcher.pollMOHWCaregivingFeed();
     summary.pollSuccess = pollResult.success;

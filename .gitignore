@@ -38,3 +38,4 @@ test_secure.key
 # Runtime-generated local data (not source, regenerated on first run)
 src/config/caregiverLedger.json
 src/config/caregivingPolicy.json
+src/config/insurancePolicy.json

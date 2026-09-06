@@ -24,10 +24,11 @@ const proposalStore = new PolicyProposalStore({ storeFilePath: testStoreFile, po
 // Stub out the network-touching methods on policyWatcher so this suite is
 // fully deterministic and offline -- pollMOHWCaregivingFeed/fetchMOHWPostBody
 // are already covered by their own live-network tests in test_mohw_policy_watcher.js.
-function makeStubbedPolicyWatcher({ pollResult, bodyResults = {} }) {
+function makeStubbedPolicyWatcher({ pollResult, bodyResults = {}, insuranceResult }) {
   const stub = Object.create(policyWatcher);
   stub.pollMOHWCaregivingFeed = async () => pollResult;
   stub.fetchMOHWPostBody = async (listNo) => bodyResults[listNo] || { success: false, error: 'no stub configured for this listNo' };
+  stub.pollInsuranceRateFeeds = async () => insuranceResult || { success: true, newMatchesCount: 0, newMatches: [], errors: [], policy: {} };
   return stub;
 }
 
@@ -209,6 +210,23 @@ function makeMockExtractor(extractionResult) {
   daemon.stop();
   assert.strictEqual(daemon._timer, null);
   console.log('✅ Test 8 passed: start()/stop() lifecycle works without throwing, timer cleared.');
+}
+
+// ── 9. Insurance-rate feed results surface in the run summary ───────────────
+{
+  const stubbedWatcher = makeStubbedPolicyWatcher({
+    pollResult: { success: true, newMatchesCount: 0, newMatches: [], policy: {} },
+    insuranceResult: { success: true, newMatchesCount: 2, newMatches: [], errors: [], policy: {} }
+  });
+  const daemon = new PolicyWatcherDaemon({
+    policyWatcher: stubbedWatcher,
+    llmExtractor: makeMockExtractor({ success: true, extraction: { hasNumericChange: false } }),
+    proposalStore
+  });
+  const summary = await daemon.runOnce();
+  assert.strictEqual(summary.insurance.pollSuccess, true);
+  assert.strictEqual(summary.insurance.newMatchesCount, 2);
+  console.log('✅ Test 9 passed: insurance-rate poll results surface in run summary.');
 }
 
 // Cleanup

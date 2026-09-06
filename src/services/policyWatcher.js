@@ -5,13 +5,18 @@ import path from 'path';
 export class KoreanPolicyWatcher {
   constructor(
     policyFilePath = './src/config/laborPolicy.json',
-    caregivingPolicyFilePath = './src/config/caregivingPolicy.json'
+    caregivingPolicyFilePath = './src/config/caregivingPolicy.json',
+    insurancePolicyFilePath = './src/config/insurancePolicy.json'
   ) {
     this.policyFilePath = path.resolve(policyFilePath);
     this.caregivingPolicyFilePath = path.resolve(caregivingPolicyFilePath);
+    this.insurancePolicyFilePath = path.resolve(insurancePolicyFilePath);
     this.mohwBoardUrl = 'https://www.mohw.go.kr/board.es?mid=a10503010100&bid=0027';
+    this.moelBoardUrl = 'https://www.moel.go.kr/news/enews/report/enewsList.do';
+    this.npsBoardUrl = 'https://www.nps.or.kr/pnsgdnc/nscvrgdata/getOHAE0002M0List.do';
     this._ensurePolicyStore();
     this._ensureCaregivingPolicyStore();
+    this._ensureInsurancePolicyStore();
   }
 
   _ensurePolicyStore() {
@@ -26,9 +31,9 @@ export class KoreanPolicyWatcher {
         activeRegulations: {
           severanceThresholdWeeklyHours: 15.0,
           overtimeMultiplier: 1.5,
-          nationalPensionRate: 0.045,
-          healthInsuranceRate: 0.03545,
-          employmentInsuranceRate: 0.0115,
+          nationalPensionRate: 0.0475,
+          healthInsuranceRate: 0.03595,
+          employmentInsuranceRate: 0.009,
           minimumHourlyWage2026: 10030 // KRW
         },
         sourceFeed: 'https://www.moel.go.kr (Simulated Autonomous Feed)'
@@ -316,5 +321,156 @@ export class KoreanPolicyWatcher {
     }
 
     return { success: true, bodyText, url: detailUrl };
+  }
+
+  // ─────────────────────────────────────────────────────────────
+  // 4-Major-Insurance Rate Watch (국민연금/건강보험/고용보험 employee-side %)
+  // ─────────────────────────────────────────────────────────────
+  //
+  // Same non-auto-write contract as the MOHW caregiving watcher above: this
+  // only discovers candidate rate-change announcements across the three
+  // boards that actually publish them (MOHW health-insurance rate decisions,
+  // NPS pension-rate notices, MOEL employment/industrial-accident insurance
+  // notices) and records them in insurancePolicy.json's detectedUpdates for
+  // human review. It NEVER patches complianceEngine.js's rate constants or
+  // laborPolicy.json directly -- a human updates those manually after
+  // confirming a detected announcement, same as the caregiving flow.
+
+  _ensureInsurancePolicyStore() {
+    const dir = path.dirname(this.insurancePolicyFilePath);
+    if (!fs.existsSync(dir)) {
+      fs.mkdirSync(dir, { recursive: true });
+    }
+    if (!fs.existsSync(this.insurancePolicyFilePath)) {
+      const defaultInsurancePolicy = {
+        lastChecked: new Date().toISOString(),
+        jurisdiction: 'MOHW / NPS / MOEL (4-major-insurance rate announcements)',
+        // Mirrors laborPolicy.json's employee-side rates -- kept here too so
+        // drift-detection has a "last confirmed" baseline to display next to
+        // any newly detected announcement, without needing to cross-reference.
+        activeRegulations: {
+          nationalPensionRate: 0.0475,
+          healthInsuranceRate: 0.03595,
+          employmentInsuranceRate: 0.009
+        },
+        sourceFeeds: {
+          mohw: this.mohwBoardUrl,
+          nps: this.npsBoardUrl,
+          moel: this.moelBoardUrl
+        },
+        watchedKeywords: ['보험료율', '건강보험료', '국민연금 보험료', '고용보험료', '산재보험료'],
+        detectedUpdates: []
+      };
+      fs.writeFileSync(this.insurancePolicyFilePath, JSON.stringify(defaultInsurancePolicy, null, 2));
+    }
+  }
+
+  getCurrentInsurancePolicy() {
+    const data = fs.readFileSync(this.insurancePolicyFilePath, 'utf8');
+    return JSON.parse(data);
+  }
+
+  /**
+   * Parses MOEL's 보도자료 board listing (structurally identical to MOHW's:
+   * server-side <table> with a title <a> carrying a numeric id, plus a
+   * separate 등록일 cell). Reuses the same row shape as _parseMOHWBoardListing
+   * so downstream drift-detection stays generic.
+   */
+  _parseMOELBoardListing(html) {
+    const rows = [];
+    const rowRegex = /<a href="enewsView\.do\?news_seq=(\d+)"[^>]*title="([^"]+)"[\s\S]*?<td aria-label="등록일">([^<]+)<\/td>/g;
+    let match;
+    while ((match = rowRegex.exec(html)) !== null) {
+      const [, listNo, rawTitle, rawDate] = match;
+      rows.push({
+        listNo,
+        title: rawTitle.trim(),
+        date: rawDate.trim().replace(/\./g, '-').replace(/-$/, ''),
+        url: `https://www.moel.go.kr/news/enews/report/enewsView.do?news_seq=${listNo}`
+      });
+    }
+    return rows;
+  }
+
+  /**
+   * Parses NPS's 보도자료 board listing: <li class="list-item"> blocks, title
+   * as the <a> tag's text content (not an attribute) carrying a pstId query
+   * param, and a separate 작성일 field inside the item's info list.
+   */
+  _parseNPSBoardListing(html) {
+    const rows = [];
+    const itemRegex = /<li class="list-item">[\s\S]*?<a href="([^"]*?pstId=([A-Z0-9]+)[^"]*)">\s*([^<]+?)\s*<\/a>[\s\S]*?<span class="data">(\d{4}\/\d{2}\/\d{2})<\/span>/g;
+    let match;
+    while ((match = itemRegex.exec(html)) !== null) {
+      const [, relativeHref, listNo, rawTitle, rawDate] = match;
+      const href = relativeHref.startsWith('http') ? relativeHref : `https://www.nps.or.kr${relativeHref}`;
+      rows.push({
+        listNo,
+        title: rawTitle.trim(),
+        date: rawDate.replace(/\//g, '-'),
+        url: href.replace(/&amp;/g, '&')
+      });
+    }
+    return rows;
+  }
+
+  /**
+   * Polls all three insurance-rate feeds (MOHW, MOEL, NPS), pooling matches
+   * through the same generic _detectCaregivingDrift keyword-match+dedupe
+   * logic used for the caregiving track (it only depends on
+   * {watchedKeywords, detectedUpdates}, not on caregiving specifics).
+   * Read-only discovery, same graceful-degradation contract as
+   * pollMOHWCaregivingFeed: a failed board fetch is logged and skipped,
+   * never fatal to the other boards or to lastChecked.
+   */
+  async pollInsuranceRateFeeds() {
+    const policy = this.getCurrentInsurancePolicy();
+    const boards = [
+      { name: 'mohw', url: this.mohwBoardUrl, parse: html => this._parseMOHWBoardListing(html) },
+      { name: 'moel', url: this.moelBoardUrl, parse: html => this._parseMOELBoardListing(html) },
+      { name: 'nps', url: this.npsBoardUrl, parse: html => this._parseNPSBoardListing(html) }
+    ];
+
+    const allNewMatches = [];
+    const errors = [];
+
+    for (const board of boards) {
+      try {
+        const response = await fetch(board.url, {
+          headers: { 'User-Agent': 'Mozilla/5.0 (CareBridge PolicyWatcher/1.0)' }
+        });
+        if (!response.ok) {
+          throw new Error(`HTTP ${response.status}`);
+        }
+        const html = await response.text();
+        const rows = board.parse(html);
+        const newMatches = this._detectCaregivingDrift(rows, policy);
+        allNewMatches.push(...newMatches.map(m => ({ ...m, board: board.name })));
+      } catch (err) {
+        errors.push(`${board.name}: ${err.message}`);
+        console.warn(`[PolicyWatcher] ⚠️ Insurance-rate feed poll failed for ${board.name} (leaving as last-known-good): ${err.message}`);
+      }
+    }
+
+    if (allNewMatches.length > 0) {
+      policy.detectedUpdates = [
+        ...(policy.detectedUpdates || []),
+        ...allNewMatches.map(m => ({ ...m, detectedAt: new Date().toISOString() }))
+      ];
+      console.log(`[PolicyWatcher] 🔎 Insurance-rate drift detected: ${allNewMatches.length} new release(s) across ${boards.length} boards.`);
+    } else {
+      console.log('[PolicyWatcher] Polled insurance-rate feeds. No new matching releases.');
+    }
+
+    policy.lastChecked = new Date().toISOString();
+    fs.writeFileSync(this.insurancePolicyFilePath, JSON.stringify(policy, null, 2));
+
+    return {
+      success: errors.length < boards.length, // at least one board succeeded
+      newMatchesCount: allNewMatches.length,
+      newMatches: allNewMatches,
+      errors,
+      policy
+    };
   }
 }
