@@ -30,9 +30,9 @@ console.log(`Severance Eligible: ${auditResult.isEligibleForSeverance ? 'YES (Me
 console.log(`Cumulative Severance Liability: ${auditResult.cumulativeSeveranceLiability.toLocaleString()} KRW`);
 console.log(`Overtime Compensation (1.5x): ${auditResult.overtimeCompensation.toLocaleString()} KRW`);
 console.log("--- Four Major Public Insurances (4대 보험) ---");
-console.log(`  National Pension (4.5%): ${auditResult.fourMajorInsurances.nationalPension.toLocaleString()} KRW`);
-console.log(`  Health Insurance (~3.545%): ${auditResult.fourMajorInsurances.healthInsurance.toLocaleString()} KRW`);
-console.log(`  Employment Insurance (1.15%): ${auditResult.fourMajorInsurances.employmentInsurance.toLocaleString()} KRW`);
+console.log(`  National Pension (4.75%): ${auditResult.fourMajorInsurances.nationalPension.toLocaleString()} KRW`);
+console.log(`  Health Insurance (3.595%): ${auditResult.fourMajorInsurances.healthInsurance.toLocaleString()} KRW`);
+console.log(`  Employment Insurance (0.9%): ${auditResult.fourMajorInsurances.employmentInsurance.toLocaleString()} KRW`);
 console.log("--------------------------------------------------");
 console.log(`TOTAL EMPLOYER MONTHLY LIABILITY: ${auditResult.totalEmployerLiability.toLocaleString()} KRW`);
 console.log("==================================================");

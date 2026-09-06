@@ -15,9 +15,9 @@ export interface ComplianceLedgerResult {
   cumulativeSeveranceLiability: number;
   overtimeCompensation: number;
   fourMajorInsurances: {
-    nationalPension: number; // ~4.5% employer split baseline
-    healthInsurance: number;  // ~3.545% employer split baseline
-    employmentInsurance: number; // ~1.15% employer split baseline
+    nationalPension: number; // 4.75% employee-side, 2026 rate (9.5% total / 2)
+    healthInsurance: number;  // 3.595% employee-side, 2026 rate (7.19% total / 2)
+    employmentInsurance: number; // 0.9% employee-side, 실업급여 portion only (1.8% total / 2)
   };
   totalEmployerLiability: number;
 }
@@ -60,9 +60,9 @@ export class KoreanComplianceEngine {
    */
   public calculatePublicInsurances(monthlyWage: number) {
     return {
-      nationalPension: Number((monthlyWage * 0.045).toFixed(2)),       // 4.5%
-      healthInsurance: Number((monthlyWage * 0.03545).toFixed(2)),    // ~3.545%
-      employmentInsurance: Number((monthlyWage * 0.0115).toFixed(2))  // 1.15%
+      nationalPension: Number((monthlyWage * 0.0475).toFixed(2)),      // 4.75%
+      healthInsurance: Number((monthlyWage * 0.03595).toFixed(2)),     // 3.595%
+      employmentInsurance: Number((monthlyWage * 0.009).toFixed(2))    // 0.9%
     };
   }
 

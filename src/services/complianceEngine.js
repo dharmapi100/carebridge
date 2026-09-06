@@ -4,6 +4,24 @@ export class KoreanComplianceEngine {
   constructor() {
     this.SEVERANCE_THRESHOLD_HOURS = 15.0;
     this.OVERTIME_MULTIPLIER = 1.5;
+    // 2026 4대보험 employee-side contribution rates (verified against
+    // multiple Korean payroll/labor sources, Sept 2026 -- these are set
+    // annually and MUST be re-verified each year, not treated as fixed
+    // constants forever):
+    //   - National Pension (국민연금): total rate 9.5% (up from 9.0% in
+    //     2025), split 50/50 employer/employee -> employee share 4.75%.
+    //   - Health Insurance (건강보험): total rate 7.19% (up from 7.09%),
+    //     split 50/50 -> employee share 3.595%.
+    //   - Employment Insurance (고용보험, 실업급여 portion only): 1.8% total,
+    //     split 50/50 -> employee share 0.9%. The separate 고용안정·직업능력개발
+    //     사업 levy (0.25%-0.85% depending on company size) is EMPLOYER-ONLY
+    //     and is intentionally NOT included here -- this constant is the
+    //     employee's own withheld amount, not total employer cost.
+    // Previous values (0.045/0.03545/0.0115) were stale 2025-or-earlier
+    // figures and did not match any confirmed employee-side rate.
+    this.NATIONAL_PENSION_RATE = 0.0475;
+    this.HEALTH_INSURANCE_RATE = 0.03595;
+    this.EMPLOYMENT_INSURANCE_RATE = 0.009;
   }
 
   calculateSeverance(startDate, monthlyWage, weeklyHours) {
@@ -28,9 +46,9 @@ export class KoreanComplianceEngine {
 
   calculatePublicInsurances(monthlyWage) {
     return {
-      nationalPension: Number((monthlyWage * 0.045).toFixed(2)),
-      healthInsurance: Number((monthlyWage * 0.03545).toFixed(2)),
-      employmentInsurance: Number((monthlyWage * 0.0115).toFixed(2))
+      nationalPension: Number((monthlyWage * this.NATIONAL_PENSION_RATE).toFixed(2)),
+      healthInsurance: Number((monthlyWage * this.HEALTH_INSURANCE_RATE).toFixed(2)),
+      employmentInsurance: Number((monthlyWage * this.EMPLOYMENT_INSURANCE_RATE).toFixed(2))
     };
   }
 
