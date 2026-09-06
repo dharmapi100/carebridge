@@ -13,6 +13,9 @@ import { AuditMonitor } from '../services/auditMonitor.js';
 import { PIIScrubber } from '../services/piiScrubber.js';
 import { CaregiverLedger } from '../services/caregiverLedger.js';
 import { PredictiveRiskEngine } from '../services/predictiveRiskEngine.js';
+import { HospitalEligibilityEngine } from '../services/hospitalEligibility.js';
+import { StaffingComplianceMonitor } from '../services/staffingComplianceMonitor.js';
+import { LongStayPenaltyEngine } from '../services/longStayPenaltyEngine.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -44,6 +47,9 @@ const visaValidator = new VisaValidator();
 const auditMonitor = new AuditMonitor();
 const caregiverLedger = new CaregiverLedger({ auditMonitor });
 const predictiveRiskEngine = new PredictiveRiskEngine(engine);
+const staffingComplianceMonitor = new StaffingComplianceMonitor({ policyWatcher, auditMonitor });
+const hospitalEligibilityEngine = new HospitalEligibilityEngine({ policyWatcher, auditMonitor, staffingMonitor: staffingComplianceMonitor });
+const longStayPenaltyEngine = new LongStayPenaltyEngine({ policyWatcher, auditMonitor });
 
 // Health check endpoint with Autonomous Policy Watcher status
 app.get('/health', async (req, res) => {
@@ -223,6 +229,113 @@ app.get('/api/v1/audit/inspect', (req, res) => {
       inspectionAgency: 'Ministry of Employment and Labor (MOEL) Inspector Portal',
       inspectionReport,
       secureEncryptedInspectionToken: encryptedReport
+    });
+  } catch (error) {
+    return res.status(500).json({ success: false, error: error.message });
+  }
+});
+
+// Hospital Eligibility Scorecard Endpoint -- evaluates a nursing hospital
+// against MOHW's 간병비 급여화 designation criteria (hard-gated: beds,
+// direct-employment, accreditation; track-only: adequacy grade, staffing
+// grade, non-covered revenue ratio, case-mix ratio -- see hospitalEligibility.js
+// header for which MOHW criteria are confirmed vs. unpublished thresholds).
+app.post('/api/v1/hospital/eligibility', (req, res) => {
+  try {
+    const hospitalData = PIIScrubber.scrubObject(req.body);
+    const result = hospitalEligibilityEngine.evaluateHospital(hospitalData);
+    const encryptedToken = sidecar.encryptPayload(result);
+
+    return res.status(200).json({
+      success: true,
+      timestamp: new Date().toISOString(),
+      eligibilityResult: result,
+      secureEncryptedToken: encryptedToken
+    });
+  } catch (error) {
+    return res.status(500).json({ success: false, error: error.message });
+  }
+});
+
+// Hospital Gap Report Endpoint -- consolidated facility + staffing gap
+// report (one designation decision, matching KOIHA/장기요양기관 지정갱신제
+// precedent -- see hospitalEligibility.js's generateGapReport() header).
+// Accepts optional wardStaffingData[] alongside hospitalData.
+app.post('/api/v1/hospital/gap-report', (req, res) => {
+  try {
+    const body = PIIScrubber.scrubObject(req.body);
+    const { hospitalData, wardStaffingData } = body;
+    const result = hospitalEligibilityEngine.generateGapReport(hospitalData, wardStaffingData || []);
+    const encryptedToken = sidecar.encryptPayload(result);
+
+    return res.status(200).json({
+      success: true,
+      timestamp: new Date().toISOString(),
+      gapReport: result,
+      secureEncryptedToken: encryptedToken
+    });
+  } catch (error) {
+    return res.status(500).json({ success: false, error: error.message });
+  }
+});
+
+// Staffing/Shift Compliance Endpoint -- evaluates one ward's caregiver
+// staffing + shift pattern against the forthcoming MOHW standard (config-
+// driven ratio/shift/room values -- see staffingComplianceMonitor.js header
+// for the regulatory-honesty notes on what is/isn't finalized).
+app.post('/api/v1/staffing/evaluate', (req, res) => {
+  try {
+    const wardData = PIIScrubber.scrubObject(req.body);
+    const result = staffingComplianceMonitor.evaluateWardStaffing(wardData);
+    const encryptedToken = sidecar.encryptPayload(result);
+
+    return res.status(200).json({
+      success: true,
+      timestamp: new Date().toISOString(),
+      staffingResult: result,
+      secureEncryptedToken: encryptedToken
+    });
+  } catch (error) {
+    return res.status(500).json({ success: false, error: error.message });
+  }
+});
+
+// Patient Long-Stay Copay Penalty Endpoint -- computes one patient's
+// applicable copay ratio + KRW billing breakdown (see longStayPenaltyEngine.js
+// header for the sourcing/confidence note on the +10%/+20% figures).
+app.post('/api/v1/patient/copay', (req, res) => {
+  try {
+    const patientData = PIIScrubber.scrubObject(req.body);
+    const result = longStayPenaltyEngine.evaluatePatientCopay(patientData);
+    const encryptedToken = sidecar.encryptPayload(result);
+
+    return res.status(200).json({
+      success: true,
+      timestamp: new Date().toISOString(),
+      copayResult: result,
+      secureEncryptedToken: encryptedToken
+    });
+  } catch (error) {
+    return res.status(500).json({ success: false, error: error.message });
+  }
+});
+
+// Patient Long-Stay Copay Penalty Batch Endpoint -- processes a full
+// hospital roster in one pass (cached-policy design, see
+// longStayPenaltyEngine.js -- no per-patient file reads).
+app.post('/api/v1/patient/copay/batch', (req, res) => {
+  try {
+    const body = PIIScrubber.scrubObject(req.body);
+    const patientDataList = body.patients || [];
+    const results = longStayPenaltyEngine.evaluatePatientCopayBatch(patientDataList);
+    const encryptedToken = sidecar.encryptPayload(results);
+
+    return res.status(200).json({
+      success: true,
+      timestamp: new Date().toISOString(),
+      totalProcessed: results.length,
+      copayResults: results,
+      secureEncryptedToken: encryptedToken
     });
   } catch (error) {
     return res.status(500).json({ success: false, error: error.message });
