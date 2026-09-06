@@ -86,7 +86,7 @@ Paul Basic, American citizen. Satisfies KSGC's non-Korean-national founder requi
 1. **Hook** — demographic cliff (10M+ Koreans 65+, fastest-aging nation on earth) + ₩3.7M/month private-care cost crisis + 110K-worker shortfall by 2028.
 2. **Vacuum** — Caredoc/Caring are asset-heavy and vacated the compliance layer; CareNation/Korea Senior Research Institute are structurally compliance-avoidant by design; Caresalary owns agency payroll but not nursing-hospital subsidy-eligibility. Say the narrow white space explicitly — do not let "caregiver matching" be the category judges compare us against.
 3. **Solution** — Tri-Layer Compliance OS, deterministic statutory code, built against MOHW's actual Phase-1 pilot mechanics (not rounded talking points).
-4. **Moat** — regulatory lock-in + cryptographic audit ledgers + switching-cost liability shield + hospital-eligibility/staffing-ratio/copay-penalty scoring nobody else has built.
+4. **Moat** — regulatory lock-in + AES-256-GCM encrypted, tamper-evident audit logs (real, live, tested — see Technical Note below) + switching-cost liability shield + hospital-eligibility/staffing-ratio/copay-penalty scoring nobody else has built.
 5. **The Homesaeng answer, stated directly, not hoped around** — CareBridge sells compliance/scoring infrastructure to hospitals and agencies who already hold licensing/visa-sponsorship standing. We do not become the employer-of-record or visa sponsor. That's what lets us do what Homesaeng couldn't.
 6. **GTM** — B2B2C via municipal welfare MOUs → regional agency adoption → SaaS + transactional fees. (Embedded-API-into-existing-platforms pivot was proposed as an alternative — see Open Strategic Questions below; not yet validated.)
 7. **Ask** — 90-day Seoul soft-landing (Pangyo hub) → Seoul metro rollout → Korea as global benchmark.
@@ -122,3 +122,4 @@ Repo: `dharmapi100/carebridge`, canonical clone `/Users/paulbasic/carebridge`. N
 3. No demo scripts, outreach emails, or pitch decks until explicitly requested.
 4. When a claim in this doc conflicts with a claim elsewhere (another doc, a prior session), this doc wins — but check the primary source before assuming this doc is right; it has been wrong before and been corrected in place.
 5. Optimize to win first place, not just participate. Speak government-compliance/legal-liability-shield language, not "Uber for caregivers." Never use generic Western startup templates.
+6. Feature ideas that aren't built yet go in `docs/BUILD_BACKLOG.md`, not here. This doc is verified facts + committed strategy only.
