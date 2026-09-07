@@ -14,8 +14,13 @@ Not verified regulatory facts, not committed strategy — that's `KSGC_MASTER_CO
 - KMS-based key management — correct for demo stage is local-file + key-versioning (done); KMS is a real prod-only migration, not needed pre-pilot.
 - Dashboard UI redesign — explicitly paused by Paul.
 
-## Test-or-Cut Decision Needed
-`arbitrationEngine.js`, `remittanceEscrow.js`, `cryptoShield.js`, `zeroKnowledgeVault.js` — real code, zero tests, not wired into the API. Status: unverified, described nowhere as "working." Decide: write tests and wire in, or remove. Not yet decided.
+## Test-or-Cut Decision — RESOLVED (commit 76f5cff)
+The four unwired engines (`arbitrationEngine.js`, `remittanceEscrow.js`, `cryptoShield.js`, `zeroKnowledgeVault.js`) were real code with zero tests. Decision made and executed:
+- **Cut:** `cryptoShield.js` + its demo `testQuantum.js` — labeled "quantum-resistant / SHA-512-HMAC-Bound / 256 bits vs Grover" but is plain SHA-512 with no HMAC and no quantum construction; redundant with tested `AuditMonitor`+`SecureSidecar`. **Cut:** `zeroKnowledgeVault.js` — hardcoded salt, no decrypt, misleading "zero-knowledge" label; redundant with `SecureSidecar`.
+- **Kept + fixed:** `remittanceEscrow.js` — logic correct, but used stale 2025 insurance rates; updated to 2026 + tested. **Kept + reframed:** `arbitrationEngine.js` — was outputting settlement amounts/legal opinions (dispensing advice without counsel); now only returns the statutory severance eligibility determination. Both have new test files. They remain unwired to HTTP endpoints by design (internal service modules, not user-facing APIs).
 
-## Wiring Backlog (tested, not yet live)
-`hospitalEligibility.js` (+ `generateGapReport()`), `staffingComplianceMonitor.js`, `longStayPenaltyEngine.js` — all pass their test suites, none have HTTP endpoints in `server.js`. This is the highest-leverage next step discussed (demo-ability gap), not yet started.
+## Wiring Backlog — DONE (commit d467af9)
+`hospitalEligibility.js` (+ `generateGapReport()`), `staffingComplianceMonitor.js`, `longStayPenaltyEngine.js` — all wired into `server.js` with HTTP endpoints and passing their test suites.
+
+## Resolved Earlier
+- **4-major-insurance rates** were stale (2025) in `complianceEngine.js` and `remittanceEscrow.js` — both corrected to 2026 and now under autonomous drift-watch via `policyWatcher.js` (`pollInsuranceRateFeeds`, MOHW/MOEL/NPS boards). See commits `2769659`, `63d809c`, `76f5cff`.
