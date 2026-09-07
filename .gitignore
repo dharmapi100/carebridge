@@ -39,3 +39,7 @@ test_secure.key
 src/config/caregiverLedger.json
 src/config/caregivingPolicy.json
 src/config/insurancePolicy.json
+
+# Runtime audit/access logs (machine-generated, regenerated on every run)
+src/config/access_audit.log
+*.log
