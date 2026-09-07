@@ -5,7 +5,8 @@
   "main": "src/api/server.js",
   "type": "module",
   "scripts": {
-    "start": "node src/api/server.js"
+    "start": "node src/api/server.js",
+    "test": "node src/services/testRunner.js && for f in src/tests/test_*.js; do echo \"=== $f ===\"; node \"$f\" || exit 1; done"
   },
   "dependencies": {
     "cors": "^2.8.6",
