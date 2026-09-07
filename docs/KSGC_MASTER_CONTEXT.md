@@ -1,5 +1,5 @@
 # KSGC / CareBridge Master Context
-**Single source of truth.** If another doc in this repo disagrees with this one, this one wins — update it, don't create a new file. Last consolidated: 2026-09-06.
+**Single source of truth.** If another doc in this repo disagrees with this one, this one wins — update it, don't create a new file. Last consolidated: 2026-09-07.
 
 ## Founder
 Paul Basic, American citizen. Satisfies KSGC's non-Korean-national founder requirement for the Main Track. (Confirmed directly by founder — not inferred.)
@@ -75,12 +75,29 @@ Paul Basic, American citizen. Satisfies KSGC's non-Korean-national founder requi
 - Watch keywords: 간병비 급여화, 요양병원 간병, 외국인 간병인 고용, 직접고용 의무화, 개인사업자 (contractor-classification loophole).
 - Key committee: Health Insurance Policy Deliberation Committee (건정심) — has NOT yet issued a formal ruling on the national scale-up as of this writing.
 
+## Korea Market Entry Plan (2026 rubric category 3 of 4 — settlement potential, now weighted heavily)
+**Status:** structural facts verified live (2026-09-07); personal/specific items marked `[PAUL]` need founder input — not fabricated.
+
+**Program timeline (next viable target = KSGC 2027; 2026 window closed June 17, 2026):**
+- KSGC 2026 phases (template for the 2027 cycle, structure repeats): Discover (Jul–Sep, 80 teams) → Accelerate (Sep–Dec, 40 teams) → Scale (Dec–Jun, 20 teams). Workspace free in Pangyo + Gangnam all phases.
+- Incorporation required mid-program (Phase 1 or 2) to receive financial awards — entity setup is a hard gate, not optional. KSGC provides incorporation + legal/accounting/HR assistance.
+- Visa support for up to 3 team members: **D-10-2 (창업준비/startup-prep)** during Accelerate → **D-8-4 (기술창업/tech-startup)** during Scale after incorporation. D-10-2 requires startup-immigration score ≥35 OR K-Startup Grand Challenge recommendation; initial 6 months, up to 4 extensions (~2 yrs). D-8-4 requires the incorporated tech-company standing.
+- Funding pool (2026 scale, verify 2027): ~$640K total — participation ~$212K, prize ~$252K, growth ~$166K; top-10 ~$320K + ~$11K settlement fund. **Do not bank a 2027 figure.**
+
+**Plan elements to finalize (`[PAUL]` = needs founder's real decision/input, do not leave as placeholder):**
+- **Entity type + timing** `[PAUL]`: 주식회사 (JSC) is the standard choice for KSGC award eligibility + foreign-founder ownership; timing = target incorporation to align with mid-program gate. Confirm type + month.
+- **Target hub** `[PAUL]`: Pangyo vs Gangnam — KSGC offers both free. Recommend Pangyo (MSS/K-Startup ecosystem density, tech-startup positioning) unless a real partner/relationship favors Gangnam.
+- **Local hiring plan** `[PAUL]`: first Korea-based hires + roles + timeline (real names/roles only; none to fabricate).
+- **Local partner/customer conversations** `[PAUL]`: name any real contacts underway/planned (municipal welfare offices, hospitals, agencies). If none exist yet, say so — that is the single most valuable thing to go get (per thesis + this doc).
+- **Revenue model in KRW terms** `[PAUL]`: pricing per facility/month, not USD SaaS abstraction. Anchor: agency-payroll competitor Caresalary charges ₩16,500/mo — CareBridge's compliance/subsidy-eligibility layer justifies a different (likely higher) price; propose KRW figure.
+- **90-day Seoul soft-landing** (Pangyo hub), pre-warm KIC + accelerator relationships before arrival.
+
 ## KSGC Competition Context
 - Korea Startup Grand Challenge, backed by MSIT + NIPA.
 - Top prize ~$130,000 + follow-on settlement grants for top 20.
-- Deadline/window status: a prior note claimed the "2026 window closed June 17, 2026" targeting a 2027 cycle — **this has not been re-verified this session; confirm live before relying on it.**
-- 2026 priority sectors: Mechanical, Electrical/Semiconductor, ICT/AI, Chemical, Bio & Medical & Life Science (our current fit), Energy, Craft/Design.
-- Positioning: elder-care compliance framed as bio/medical infrastructure — labor compliance enables clinical care delivery at scale. (Alternative framing floated but not decided: ICT/compliance-software category if "infrastructure sold to licensed agencies" becomes the explicit GTM — different competitive/technical-differentiation expectations under the rubric. Open question, not resolved.)
+- Deadline/window status: **2026 window closed June 17, 2026 (verified 2026-09-07 via ksgc.global) — next viable target is KSGC 2027; confirm the 2027 window live when it opens.**
+- 2026 priority sectors: Mechanical, Electrical/Semiconductor, **Information & Communication / ICT-AI (Software, Networks, AI, Cybersecurity, Data — OUR FIT)**, Chemical, Bio & Medical & Life Science, Energy, Craft/Design.
+- Positioning: elder-care compliance framed as ICT/AI compliance infrastructure — deterministic software encoding labor law for clinical care delivery at scale. **Verified 2026 sector list (KSGC official guidelines) lists Information & Communication explicitly; the bio/medical framing was the earlier default and is now closed — lead with ICT/AI.**
 
 ## Pitch Architecture
 1. **Hook** — demographic cliff (10M+ Koreans 65+, fastest-aging nation on earth) + ₩3.7M/month private-care cost crisis + 110K-worker shortfall by 2028.
@@ -102,17 +119,17 @@ Paul Basic, American citizen. Satisfies KSGC's non-Korean-national founder requi
 
 ## Open Strategic Questions (explicitly unresolved — do not present as settled)
 1. **Embedded-API GTM pivot** (sell compliance/payroll as an API that agencies/platforms like Caredoc/Caring integrate against, monetized per-transaction rather than direct SaaS seat) — proposed, not validated. Open questions: do Caredoc/Caring already have in-house compliance tooling or partnerships covering this (not checked)? Would agencies pay a transaction fee, or is this expected bundled free from EMR vendors (ezCaretech, BIT Computer)? Legal liability split between CareBridge (software), the agency (current employer-of-record), and the hospital (funding recipient) needs real legal review, not assumption.
-2. **KSGC track framing** — Bio & Medical & Life Science (current default) vs. ICT/compliance-software (if the embedded-infrastructure pivot above becomes the actual GTM) — not decided.
+2. ~~KSGC track framing~~ — **RESOLVED 2026-09-07:** verified KSGC 2026 sector list includes Information & Communication / ICT-AI explicitly; lead with ICT/AI, not bio/medical.
 3. **Long-stay copay curve reconciliation** — flat +10%/+20% (currently coded) vs. 15%/month-compounding-after-month-6 (Phase-1 pilot data) — which one governs, or do different tiers use different curves. Needs a primary-source check closer to any pitch deadline.
 
-## What's Actually Built (verified against the live repo, 2026-09-06)
-Repo: `dharmapi100/carebridge`, canonical clone `/Users/paulbasic/carebridge`. Node.js, Express API. No database wired yet (no live Postgres/Prisma despite being a target stack). 14/14 test files pass, CI green (Node 18.x/20.x).
+## What's Actually Built (verified against the live repo, 2026-09-07)
+Repo: `dharmapi100/carebridge`, canonical clone `/Users/paulbasic/carebridge`. Node.js, Express API. No database wired yet (no live Postgres/Prisma despite being a target stack). **18/18 test files pass** (16 + remittance + arbitration), CI green (Node 18.x/20.x).
 
 **Live in the running API (`src/api/server.js`):** complianceEngine (severance + 4 major insurances), secureSidecar (key-versioned encryption), policyWatcher, matchingEngine, credentialIngestor, visaValidator (local allowlist check only — no Hi-Korea/government-system integration exists, never has; fixed a false claim to the contrary in the response message this session), auditMonitor, piiScrubber, caregiverLedger, predictiveRiskEngine.
 
-**Built and tested, NOT yet wired into the live API:** hospitalEligibility (+ its `generateGapReport()`, which merges hospital-level and ward-level staffing gaps into one consolidated report — matches the real-world precedent that Korean nursing-hospital certification is one decision, not separate facility/staffing approvals), staffingComplianceMonitor, longStayPenaltyEngine, llmExtractor + policyProposals (human-approval gate between an LLM reading MOHW press releases and the live policy thresholds — never auto-applies a change).
+**Built, tested, AND wired into the live API (commit d467af9):** hospitalEligibility (+ its `generateGapReport()`, which merges hospital-level and ward-level staffing gaps into one consolidated report — matches the real-world precedent that Korean nursing-hospital certification is one decision, not separate facility/staffing approvals), staffingComplianceMonitor, longStayPenaltyEngine. **Not HTTP-wired (background/daemon by design):** llmExtractor + policyProposals (human-approval gate between an LLM reading MOHW press releases and the live policy thresholds — never auto-applies a change).
 
-**Stubs — code exists, zero tests, not imported anywhere. Do not describe these as working:** zeroKnowledgeVault.js, arbitrationEngine.js, remittanceEscrow.js, cryptoShield.js. Aspirational architecture, not shipped features.
+**Stubs — deleted as redundant/overclaiming (commit 76f5cff), do not describe as existing:** cryptoShield.js (labeled quantum-resistant but was plain SHA-512 — credibility risk), zeroKnowledgeVault.js (redundant with SecureSidecar). **Kept but reframed:** arbitrationEngine.js → ArbitrationEligibilityEngine (statutory eligibility only, no legal advice), remittanceEscrow.js (2026 rates fixed).
 
 **Status:** no demo built yet, no daemon auto-starts by default, no live database. Pre-pilot, pre-demo. Do not generate outreach emails, pitch decks, or "fast-track" applications assuming a finished/deployed product exists.
 
