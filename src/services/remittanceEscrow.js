@@ -8,9 +8,12 @@ export class RemittanceEscrowEngine {
   calculateEscrowAndRemittance({ workerId, grossMonthlyWage, verifiedHoursWorked, targetCurrency = 'USD', exchangeRateKRWtoUSD = 1350 }) {
     const incomeTax = grossMonthlyWage * this.INCOME_TAX_RATE;
     const localIncomeTax = incomeTax * this.LOCAL_TAX_RATE;
-    const nationalPension = grossMonthlyWage * 0.045;
-    const healthInsurance = grossMonthlyWage * 0.03545;
-    const employmentInsurance = grossMonthlyWage * 0.0115;
+    // Employee-side 2026 rates (match complianceEngine.js + insurancePolicy.json):
+    // National Pension 4.75%, Health Insurance 3.595%, Employment Insurance 0.9%.
+    // Confirmed in commit 2769659; verified against 2026 Korean payroll sources.
+    const nationalPension = grossMonthlyWage * 0.0475;
+    const healthInsurance = grossMonthlyWage * 0.03595;
+    const employmentInsurance = grossMonthlyWage * 0.009;
     
     const totalDeductions = incomeTax + localIncomeTax + nationalPension + healthInsurance + employmentInsurance;
     const netPayableKRW = grossMonthlyWage - totalDeductions;
