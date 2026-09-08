@@ -100,6 +100,29 @@ Paul Basic, American citizen. Satisfies KSGC's non-Korean-national founder requi
 - 2026 priority sectors: Mechanical, Electrical/Semiconductor, **Information & Communication / ICT-AI (Software, Networks, AI, Cybersecurity, Data — OUR FIT)**, Chemical, Bio & Medical & Life Science, Energy, Craft/Design.
 - Positioning: elder-care compliance framed as ICT/AI compliance infrastructure — deterministic software encoding labor law for clinical care delivery at scale. **Verified 2026 sector list (KSGC official guidelines) lists Information & Communication explicitly; the bio/medical framing was the earlier default and is now closed — lead with ICT/AI.**
 
+## Scalability Thesis (what makes us attractive on the "scales well" axis — verified market math, honest about what's unproven)
+**The core structural advantage — software, not headcount-linear services.** Direct competitors scale by adding physical/people assets: Caring runs care centers and hires thousands of care workers; Caredoc is building senior real estate; CareNation runs a labor marketplace. CareBridge's product is code that runs payroll + compliance checks. Marginal cost of serving a 10th vs. 1,000th facility is near zero — no nurse, building, or manager added per client. Textbook SaaS scalability that the asset-heavy incumbents structurally cannot match. This is the #1 line a judge can grasp: "they scale by writing better software; their competitors scale by hiring more people."
+
+**The moat improves with scale (compounding, not linear).** Every adopting facility adds compliance history to the system. More facilities → more MOEL-audit data, wage patterns, classification rulings → compliance engine gets more accurate and defensible for every next customer. Competitors start with zero compliance history; the data gap widens every month. This is genuine regulatory network effect.
+
+**Unit economics survive even high CAC.** Even if acquiring a hospital is expensive, LTV per hospital is high (sticky — switching off = regulatory liability) and marginal serving cost is near zero → software gross margins (80-90%+) and short payback, at modest prices. Caring's margin per unit barely improves with size (real caregiver/rent costs scale with revenue). The margin asymmetry IS the scalability thesis.
+
+**Verified Korean market size (institutional sources, 2026-09-07) — larger than the earlier Seoul-corridor estimate:**
+- ~1,400-1,500 요양병원 (nursing hospitals) nationally holding ~270,000 beds (a dominant share of all hospital beds) — concentrated, high-value compliance targets.
+- ~4,758 노인요양시설 (elder-care facilities), steadily rising (2021: 4,057 → 2025: 4,758).
+- ~20,500+ 재가급여 (home-visit care) agencies — the large long tail.
+- ~79,000+ 요양 institutions total nationally.
+- **Correction:** the earlier "~227 nursing hospitals + 1,500 care centers in Seoul-Gyeonggi" figure materially understates the national market. Real counts are far higher.
+
+**TAM expansion — the aging-society export thesis.** Same stack (labor-compliance for super-aged demographics + foreign-labor compliance) transfers to Japan, Taiwan, and Western Europe, which face the same demographic cliff. This is how a Korea niche becomes a global platform. **Say as potential for TAM framing, NOT as shipped product in those markets — no foreign traction exists yet.**
+
+**Honest caveats (do not skip in front of a judge):**
+- Product scalability (code, near-zero marginal cost, compounding data moat) is real and demonstrated by architecture.
+- Sales-motion scalability (B2B2C municipal-MOU → regional adoption) is a hypothesis, unproven — no municipal MOU exists yet. Korean institutional sales are relationship-driven (인연), so adoption may be slow/non-linear even though serving is cheap.
+- Investors bet on product scalability IF you show you're closing the sales-side gap — the demo + first municipal/hospital conversation is the evidence.
+
+**Judge-safe one-liner:** "We scale by writing better compliance software, not by hiring more caregivers — near-zero marginal cost per facility, a compliance-data moat that compounds with every customer, and margins their asset-heavy competitors structurally can't match. The same stack exports to every aging society in Asia and Europe once Korea traction exists."
+
 ## Pitch Architecture
 1. **Hook** — demographic cliff (10M+ Koreans 65+, fastest-aging nation on earth) + ₩3.7M/month private-care cost crisis + 110K-worker shortfall by 2028.
 2. **Vacuum** — Caredoc/Caring are asset-heavy and vacated the compliance layer; CareNation/Korea Senior Research Institute are structurally compliance-avoidant by design; Caresalary owns agency payroll but not nursing-hospital subsidy-eligibility. Say the narrow white space explicitly — do not let "caregiver matching" be the category judges compare us against.
