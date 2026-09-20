@@ -1,72 +1,124 @@
 # CareBridge OS 🇰🇷
 
-> **Enterprise Labor Compliance & Wage Escrow Platform for South Korea**  
-> *Built for the Korean Startup Grand Challenge (KSGC)*
+> **Labor-compliance and payroll infrastructure for South Korea's institutional elder-care market**
+> Built for the Korean Startup Grand Challenge (KSGC)
 
-CareBridge is a production-grade, bilingual (EN/KO) labor compliance, statutory severance (퇴직금), 4 Major Public Insurances (4대보험), and visa validation platform engineered specifically for South Korea's super-aged demographic transition.
+CareBridge encodes Korean labour law into deterministic software: statutory severance (퇴직금), the 4 Major Public Insurances (4대보험), visa-category eligibility, and nursing-hospital subsidy-eligibility scoring.
 
----
-
-## 🏗️ Core Architecture & Microservices (`src/services/`)
-
-CareBridge comprises **14 specialized backend microservices** designed for zero-trust compliance, strict PIPA adherence, and autonomous regulatory tracking:
-
-1. **`complianceEngine.js` / `.ts`** — Statutory severance calculation, overtime thresholds, and automatic 4 Major Public Insurance computation.
-2. **`visaValidator.js`** — Verifies work permits and visa categories (E-9, E-12, E-5, F-2-R, ARC).
-3. **`predictiveRiskEngine.js`** — AI-driven scoring for deportation and severance default risks.
-4. **`piiScrubber.js`** — Real-time PIPA-compliant PII masking and tokenization.
-5. **`i18n.js`** — Native Korean (KO) and English (EN) localization engine.
-6. **`secureSidecar.js`** — AES-256-GCM encrypted secure message bus.
-7. **`policyWatcher.js`** — Autonomous Ministry of Employment and Labor (MOEL) regulation monitoring daemon.
-8. **`auditMonitor.js`** — Real-time immutable audit logging and telemetry.
-9. **`cryptoShield.js`** — Post-quantum SHA-512 HMAC verification.
-10. **`credentialIngestor.js`** — Automated parsing and validation of caregiver credentials.
-11. **`arbitrationEngine.js`** — Automated labor dispute resolution workflows.
-12. **`remittanceEscrow.js`** — Secure cross-border wage escrow security.
-13. **`zeroKnowledgeVault.js`** — Zero-knowledge proof management for sensitive credentials.
-14. **`matchingEngine.js`** — Intelligent caregiver-employer matching.
+It is a B2B compliance product sold to facilities and agencies that already hold licensing standing. It is **not** a consumer caregiver-matching app, and it is **not** an employer-of-record or visa-sponsor service.
 
 ---
 
-## 💳 Frontend & API Gateway
+## Status — read this first
 
-- **API Gateway**: Express backend running on port 3000 (`src/api/server.js`) exposing all compliance, escrow, and audit endpoints.
-- **Command Center**: Bilingual SPA (`src/public/index.html`) featuring live interactive JSON output cards, real-time risk gauges, and executive telemetry.
+Pre-pilot. Everything below is split into what exists and what does not, so nothing here oversells the product.
 
----
+**Exists**
+- 18 service modules and 13 HTTP endpoints
+- 18 test suites, all passing (`npm test`)
+- Bilingual EN/KO interface with live result cards
 
-## 🧪 Testing & Verification
-
-All test suites are fully verified and 100% green:
-- **`test_sidecar.js`** — PIPA encryption verification
-- **`test_audit.js`** — Severance & visa compliance validation
-- **`test_matching.js`** — Caregiver matching algorithms
-- **`test_visa.js`** — Visa status & ARC validation
-
----
-
-## 🚀 Quick Start
-
-### 1. Install Dependencies
-\`\`\`bash
-npm install
-\`\`\`
-
-### 2. Run Test Suites
-\`\`\`bash
-node src/services/testRunner.js
-\`\`\`
-
-### 3. Start API Gateway & Command Center
-\`\`\`bash
-node src/api/server.js
-\`\`\`
-Access the bilingual executive command center at `http://localhost:3000`.
+**Does not exist yet**
+- **No database.** All state is file-backed JSON under `src/config/`, regenerated on first run.
+- **No scripted demo** a facility director could follow unaided.
+- **No live customer** and no signed partner.
+- **No Ministry of Justice / Hi-Korea integration.** Visa checks are a local approved-list comparison, not a government-system query. Nothing in this repository calls a Korean government API.
+- **No automatic policy application.** The policy watcher is read-only and any proposed threshold change waits behind a human approval gate.
+- **No legal advice.** `arbitrationEngine.js` returns a statutory eligibility determination only.
 
 ---
 
-## 📦 DevOps & Containerization
-Includes `Dockerfile` and `docker-compose.yml` for instant, isolated container orchestration across staging and production environments.
+## Architecture
 
-## 📄 Documentation
-Comprehensive dossiers for KSGC stakeholders, Korean VC targeting, and executive investor outreach are available under `src/docs/`.
+Node.js and Express using ES modules, with no build step. Production dependencies are `express` and `cors` only.
+
+Two files remain in `src/services/` as `.ts` (`complianceEngine.ts`, `testRunner.ts`); nothing imports them and the project has no TypeScript compilation step. The running code is the `.js` files.
+
+### Services (`src/services/`)
+
+| Module | Exported class | Responsibility |
+|---|---|---|
+| `complianceEngine.js` | `KoreanComplianceEngine` | Statutory severance, overtime thresholds, 4 Major Public Insurances (2026 rates) |
+| `secureSidecar.js` | `SecureSidecar` | AES-256-GCM encryption, key-versioned, GCM tamper-evident; deterministic blind index |
+| `piiScrubber.js` | `PIIScrubber` | PIPA-compliant PII masking and tokenisation |
+| `auditMonitor.js` | `AuditMonitor` | Audit-log scanning and violation reporting |
+| `caregiverLedger.js` | `CaregiverLedger` | Worker record store |
+| `predictiveRiskEngine.js` | `PredictiveRiskEngine` | Risk scoring over ledger records (visa expiry, severance exposure) |
+| `credentialIngestor.js` | `CredentialIngestor` | Credential validation against the local certified registry |
+| `visaValidator.js` | `VisaValidator` | Visa-category eligibility against a local approved list |
+| `matchingEngine.js` | `CareBridgeMatchingEngine` | Caregiver scoring and dispatch |
+| `hospitalEligibility.js` | `HospitalEligibilityEngine` | MOHW designation-criteria scoring, plus a consolidated gap report |
+| `staffingComplianceMonitor.js` | `StaffingComplianceMonitor` | Staffing-ratio and shift-pattern checks against the forthcoming standard |
+| `longStayPenaltyEngine.js` | `LongStayPenaltyEngine` | Long-stay copay penalty calculation |
+| `remittanceEscrow.js` | `RemittanceEscrowEngine` | Wage escrow, plus a Foreign Exchange Act flag (2026 rates) |
+| `arbitrationEngine.js` | `ArbitrationEligibilityEngine` | Statutory severance eligibility determination only — no settlement amounts, no legal opinion |
+| `policyWatcher.js` | `KoreanPolicyWatcher` | Read-only polling of MOHW / MOEL / NPS boards for rate and threshold drift |
+| `policyProposals.js` | `PolicyProposalStore` | Proposed policy changes awaiting human approval |
+| `llmExtractor.js` | `LLMExtractor` | Extracts candidate policy changes from ministry pages (background only) |
+| `i18n.js` | `translations` | EN/KO strings |
+| `testRunner.js` | — | Core compliance test harness |
+
+### HTTP API (`src/api/server.js`)
+
+13 routes:
+
+```
+GET  /                  GET  /health
+GET  /api/v1/audit/inspect
+GET  /api/v1/risk/scan
+POST /api/v1/compliance/audit
+POST /api/v1/credential/verify
+POST /api/v1/visa/verify
+POST /api/v1/matching/dispatch
+POST /api/v1/hospital/eligibility
+POST /api/v1/hospital/gap-report
+POST /api/v1/staffing/evaluate
+POST /api/v1/patient/copay
+POST /api/v1/patient/copay/batch
+```
+
+### Interface (`src/public/index.html`)
+
+A single bilingual dashboard in vanilla HTML, CSS and JavaScript — no framework, no bundler. Five independent tool cards, each with a fixed-height result area so clicking one never resizes the card or the page.
+
+---
+
+## Quick start
+
+```bash
+npm install      # install dependencies
+npm test         # run the harness and all 18 test suites
+npm start        # start the API and dashboard on http://localhost:3000
+```
+
+## Testing
+
+`npm test` runs the core compliance harness and then every suite in `src/tests/test_*.js`, failing on the first error. Current result: **18 / 18 passing.**
+
+CI (`.github/workflows/ci.yml`) runs the same command on Node 18.x and 20.x.
+
+---
+
+## Security notes
+
+- Payload encryption is AES-256-GCM via `secureSidecar.js`, key-versioned so rotation does not orphan older records. GCM's authentication tag makes records tamper-evident; it is **not** a signature scheme and does not prove *who* produced a record.
+- Keys live in `secure.key` / `secure.keychain.json`, both gitignored. See `src/docs/security_key_management.md` for stage-appropriate handling (KMS is a production migration, not needed pre-pilot).
+- `cryptoShield.js` and `zeroKnowledgeVault.js` were removed from this codebase: both were labelled as stronger guarantees than the code actually implemented.
+
+---
+
+## Documentation
+
+| File | Purpose |
+|---|---|
+| `docs/KSGC_MASTER_CONTEXT.md` | Single source of truth — verified market facts, competitive landscape, positioning |
+| `docs/WHERE_WE_ARE.md` | Current status board: what's built, what's blocking, what's next |
+| `docs/BUILD_BACKLOG.md` | Scoped feature ideas not yet built |
+| `src/docs/security_key_management.md` | Key handling per environment |
+| `src/docs/pitch_strategy.md` | Pitch framing notes |
+
+---
+
+## Deployment
+
+`Dockerfile` and `docker-compose.yml` are present for containerised runs.
