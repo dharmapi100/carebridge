@@ -14,7 +14,7 @@ The **software is real and verified**. The **market thesis just got stress-teste
 | Item | State |
 |---|---|
 | Test suites | **18 / 18 pass** — ran `npm test`, exit code 0 |
-| Service modules | 21 in `src/services/` |
+| Service modules | 19 `.js` files in `src/services/` = 18 services + the test harness (2 vestigial `.ts` files, imported by nothing) |
 | Live HTTP API | compliance engine (severance + 4 major insurances), secure sidecar, policy watcher, matching, credential ingestor, visa validator, audit monitor, PII scrubber, caregiver ledger, predictive risk, hospital eligibility, staffing compliance, long-stay penalty |
 | Background (not user-facing) | LLM policy extractor + policy proposals — **human approval gate, never auto-applies a change** |
 | Encryption | AES-256-GCM, key-versioned, **encrypted + tamper-evident** — *not* "signed". Don't say signed. |
@@ -30,7 +30,7 @@ The **software is real and verified**. The **market thesis just got stress-teste
 
 **Confirmed and firm:**
 - Reform is real and on a clock: **500 의료중심 요양병원, copay cut from 100% → ~30%, target H1 2027.**
-- Budget curve published: **₩270B (2026) → ₩540B (2027) → ₩1T+ (2028)**, plus fee increases.
+- Budget now exact: **₩270B (2026) → ₩540B (2027) → ₩1.3tn (2028) → ₩1.8tn (2029) → ₩1.8tn (2030)**, plus 수가 인상 on top (₩1.3tn more). Total ₩6.5tn over five years.
 - Direct employment is the stated **principle**.
 - Compliance/severance obligations apply regardless of what happens to matching.
 
