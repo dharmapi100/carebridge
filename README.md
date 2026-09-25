@@ -9,16 +9,18 @@ It is a B2B compliance product sold to facilities and agencies that already hold
 
 ---
 
-## Status — read this first
+## Status, read this first
 
 Pre-pilot. Everything below is split into what exists and what does not, so nothing here oversells the product.
 
 **Exists**
+
 - 18 service modules and 13 HTTP endpoints
 - 18 test suites, all passing (`npm test`)
 - Bilingual EN/KO interface with live result cards
 
 **Does not exist yet**
+
 - **No database.** All state is file-backed JSON under `src/config/`, regenerated on first run.
 - **No scripted demo** a facility director could follow unaided.
 - **No live customer** and no signed partner.
@@ -51,12 +53,12 @@ Two files remain in `src/services/` as `.ts` (`complianceEngine.ts`, `testRunner
 | `staffingComplianceMonitor.js` | `StaffingComplianceMonitor` | Staffing-ratio and shift-pattern checks against the forthcoming standard |
 | `longStayPenaltyEngine.js` | `LongStayPenaltyEngine` | Long-stay copay penalty calculation |
 | `remittanceEscrow.js` | `RemittanceEscrowEngine` | Wage escrow, plus a Foreign Exchange Act flag (2026 rates) |
-| `arbitrationEngine.js` | `ArbitrationEligibilityEngine` | Statutory severance eligibility determination only — no settlement amounts, no legal opinion |
-| `policyWatcher.js` | `KoreanPolicyWatcher` | Read-only polling of MOHW / MOEL / NPS boards for rate and threshold drift |
+| `arbitrationEngine.js` | `ArbitrationEligibilityEngine` | Statutory severance eligibility determination only. No settlement amounts, no legal opinion |
+| `policyWatcher.js` | `KoreanPolicyWatcher` | Read-only polling of MOHW / MOEL / NPS boards for rate and threshold changes |
 | `policyProposals.js` | `PolicyProposalStore` | Proposed policy changes awaiting human approval |
 | `llmExtractor.js` | `LLMExtractor` | Extracts candidate policy changes from ministry pages (background only) |
 | `i18n.js` | `translations` | EN/KO strings |
-| `testRunner.js` | — | Core compliance test harness |
+| `testRunner.js` | - | Core compliance test harness |
 
 ### HTTP API (`src/api/server.js`)
 
@@ -79,7 +81,7 @@ POST /api/v1/patient/copay/batch
 
 ### Interface (`src/public/index.html`)
 
-A single bilingual dashboard in vanilla HTML, CSS and JavaScript — no framework, no bundler. Five independent tool cards, each with a fixed-height result area so clicking one never resizes the card or the page.
+A single bilingual dashboard in vanilla HTML, CSS and JavaScript. No framework, no bundler. Five independent tool cards, each with a fixed-height result area, so clicking one never shifts the layout. That was bugging me.
 
 ---
 
@@ -90,6 +92,8 @@ npm install      # install dependencies
 npm test         # run the harness and all 18 test suites
 npm start        # start the API and dashboard on http://localhost:3000
 ```
+
+That is it. No config file needed and no database to set up; state regenerates itself on first run.
 
 ## Testing
 
@@ -102,7 +106,7 @@ CI (`.github/workflows/ci.yml`) runs the same command on Node 18.x and 20.x.
 ## Security notes
 
 - Payload encryption is AES-256-GCM via `secureSidecar.js`, key-versioned so rotation does not orphan older records. GCM's authentication tag makes records tamper-evident; it is **not** a signature scheme and does not prove *who* produced a record.
-- Keys live in `secure.key` / `secure.keychain.json`, both gitignored. See `src/docs/security_key_management.md` for stage-appropriate handling (KMS is a production migration, not needed pre-pilot).
+- Keys live in `secure.key` / `secure.keychain.json`, both gitignored. See `src/docs/security_key_management.md` for handling notes. A proper KMS is the production migration path; a plain key file is fine at this stage.
 - `cryptoShield.js` and `zeroKnowledgeVault.js` were removed from this codebase: both were labelled as stronger guarantees than the code actually implemented.
 
 ---
@@ -111,7 +115,7 @@ CI (`.github/workflows/ci.yml`) runs the same command on Node 18.x and 20.x.
 
 | File | Purpose |
 |---|---|
-| `docs/KSGC_MASTER_CONTEXT.md` | Single source of truth — verified market facts, competitive landscape, positioning |
+| `docs/KSGC_MASTER_CONTEXT.md` | Single source of truth: verified market facts, competitive landscape, positioning |
 | `docs/WHERE_WE_ARE.md` | Current status board: what's built, what's blocking, what's next |
 | `docs/BUILD_BACKLOG.md` | Scoped feature ideas not yet built |
 | `src/docs/security_key_management.md` | Key handling per environment |
@@ -121,4 +125,4 @@ CI (`.github/workflows/ci.yml`) runs the same command on Node 18.x and 20.x.
 
 ## Deployment
 
-`Dockerfile` and `docker-compose.yml` are present for containerised runs.
+`Dockerfile` and `docker-compose.yml` are included for containerised runs.
